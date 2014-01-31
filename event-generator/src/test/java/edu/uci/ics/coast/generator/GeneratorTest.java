@@ -18,6 +18,7 @@ import edu.uci.ics.coast.LifecycleException;
 public class GeneratorTest {
 
 	private static final int DELIVERY_TIMEOUT = 500;
+	private static final String QUEUE_NAME = "test" + String.valueOf(System.currentTimeMillis());
 
 	@Test
 	public void testGenerator() throws IOException, ShutdownSignalException, ConsumerCancelledException, InterruptedException, LifecycleException {
@@ -28,7 +29,7 @@ public class GeneratorTest {
 
 		Generator generator = new Generator();
 		generator.start();
-		generator.send(Generator.QUEUE_NAME, message);
+		generator.sendOnce(QUEUE_NAME, message);
 
 		assertMessageReceived(consumer, message);
 
@@ -47,7 +48,7 @@ public class GeneratorTest {
 
 	private QueueingConsumer createConsumer(Channel channel) throws IOException {
 		QueueingConsumer consumer = new QueueingConsumer(channel);
-		channel.basicConsume(Generator.QUEUE_NAME, true, consumer);
+		channel.basicConsume(QUEUE_NAME, true, consumer);
 		return consumer;
 	}
 
@@ -57,7 +58,7 @@ public class GeneratorTest {
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
 
-		channel.queueDeclare(Generator.QUEUE_NAME, false, false, false, null);
+		channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 
 		return channel;
 	}
