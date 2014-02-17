@@ -1,4 +1,4 @@
-package edu.uci.ics.coast.generator.config;
+package edu.uci.ics.comon.generator.config;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;

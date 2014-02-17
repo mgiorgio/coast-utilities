@@ -1,4 +1,4 @@
-package edu.uci.ics.coast.generator.producer;
+package edu.uci.ics.comon.generator.producer;
 
 public enum MessageProducers {
 

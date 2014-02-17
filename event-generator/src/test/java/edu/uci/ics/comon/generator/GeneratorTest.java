@@ -1,4 +1,4 @@
-package edu.uci.ics.coast.generator;
+package edu.uci.ics.comon.generator;
 
 import java.io.IOException;
 
@@ -13,21 +13,30 @@ import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
-import edu.uci.ics.coast.LifecycleException;
+import edu.uci.ics.comon.LifecycleException;
+import edu.uci.ics.comon.generator.adapter.amqp.AMQPCoastAdapter;
+import edu.uci.ics.comon.generator.serializer.CoMonSerializer;
+import edu.uci.ics.comon.generator.serializer.JSONCoMonSerializer;
+import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.comon.protocol.CoMonMessageBuilder;
 
 public class GeneratorTest {
 
+	private static final String PROTOCOL_VERSION = "0.1";
 	private static final int DELIVERY_TIMEOUT = 500;
 	private static final String QUEUE_NAME = "test" + String.valueOf(System.currentTimeMillis());
+
+	private CoMonSerializer serializer = new JSONCoMonSerializer();
 
 	@Test
 	public void testGenerator() throws IOException, ShutdownSignalException, ConsumerCancelledException, InterruptedException, LifecycleException {
 		Channel channel = createChannel();
 
 		QueueingConsumer consumer = createConsumer(channel);
-		final String message = "Hello World!";
+		final CoMonMessage message = createMessage("Hello World!");
 
-		Generator generator = new Generator();
+		AMQPCoastAdapter generator = new AMQPCoastAdapter();
+		generator.setSerializer(serializer);
 		generator.start();
 		generator.sendOnce(QUEUE_NAME, message);
 
@@ -35,11 +44,21 @@ public class GeneratorTest {
 
 	}
 
-	private void assertMessageReceived(QueueingConsumer consumer, String expectedMessage) {
+	private CoMonMessage createMessage(String value) {
+		CoMonMessageBuilder builder = new CoMonMessageBuilder();
+		builder.setEventType("info");
+		builder.setSourceID("test");
+		builder.setValue(value);
+		builder.setVersion(PROTOCOL_VERSION);
+
+		return builder.build();
+	}
+
+	private void assertMessageReceived(QueueingConsumer consumer, CoMonMessage expectedMessage) {
 		QueueingConsumer.Delivery delivery;
 		try {
 			delivery = consumer.nextDelivery(DELIVERY_TIMEOUT);
-			String message = new String(delivery.getBody());
+			CoMonMessage message = serializer.deserialize(delivery.getBody());
 			Assert.assertEquals("Message received is different from the expected one.", message, expectedMessage);
 		} catch (ShutdownSignalException | ConsumerCancelledException | InterruptedException e) {
 			Assert.fail(e.getMessage());

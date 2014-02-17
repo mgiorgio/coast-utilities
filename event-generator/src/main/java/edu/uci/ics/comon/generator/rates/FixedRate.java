@@ -1,6 +1,6 @@
-package edu.uci.ics.coast.generator.rates;
+package edu.uci.ics.comon.generator.rates;
 
-import edu.uci.ics.coast.generator.config.Config;
+import edu.uci.ics.comon.generator.config.Config;
 
 public class FixedRate implements Rate {
 

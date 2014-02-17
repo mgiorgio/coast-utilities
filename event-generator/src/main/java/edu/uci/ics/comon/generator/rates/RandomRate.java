@@ -1,8 +1,8 @@
-package edu.uci.ics.coast.generator.rates;
+package edu.uci.ics.comon.generator.rates;
 
 import java.util.Random;
 
-import edu.uci.ics.coast.generator.config.Config;
+import edu.uci.ics.comon.generator.config.Config;
 
 public class RandomRate implements Rate {
 

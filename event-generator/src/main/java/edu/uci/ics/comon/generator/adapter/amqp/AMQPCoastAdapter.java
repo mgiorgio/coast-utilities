@@ -1,4 +1,4 @@
-package edu.uci.ics.coast.generator;
+package edu.uci.ics.comon.generator.adapter.amqp;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -10,26 +10,30 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import edu.uci.ics.coast.LifecycleComponent;
-import edu.uci.ics.coast.LifecycleException;
-import edu.uci.ics.coast.generator.config.Config;
-import edu.uci.ics.coast.generator.producer.MessageProducer;
-import edu.uci.ics.coast.generator.rates.Rate;
+import edu.uci.ics.comon.LifecycleException;
+import edu.uci.ics.comon.generator.adapter.COASTAdapter;
+import edu.uci.ics.comon.generator.config.Config;
+import edu.uci.ics.comon.generator.producer.MessageProducer;
+import edu.uci.ics.comon.generator.rates.Rate;
+import edu.uci.ics.comon.protocol.CoMonMessage;
 
-public class Generator implements LifecycleComponent {
+/**
+ * The {@link AMQPCoastAdapter} interacts with the {@link MessageProducer} and
+ * {@link Rate} and future sub-components. This class is coupled with the
+ * transport layer used for the COAST implementation.
+ * 
+ * @author matias
+ * 
+ */
+public class AMQPCoastAdapter extends COASTAdapter {
 
 	private Connection connection;
 	private Channel channel;
 
-	private static final Logger log = LoggerFactory.getLogger(Generator.class);
+	private static final Logger log = LoggerFactory.getLogger(AMQPCoastAdapter.class);
 	private static final Logger console = LoggerFactory.getLogger("console");
 
-	public Generator() {
-	}
-
-	@Override
-	public void init() throws LifecycleException {
-		console.info("Initializing Generator...");
+	public AMQPCoastAdapter() {
 	}
 
 	@Override
@@ -46,18 +50,20 @@ public class Generator implements LifecycleComponent {
 		}
 	}
 
-	public void sendOnce(String queue, String message) throws IOException {
-		this.channel.queueDeclarePassive(queue); // Required?
-		this.channel.basicPublish("", queue, null, message.getBytes());
+	@Override
+	public void sendOnce(String destination, CoMonMessage message) throws IOException {
+		this.channel.queueDeclarePassive(destination); // Required?
+		this.channel.basicPublish("", destination, null, this.getSerializer().serialize(message));
 		log.info("Sent: {}", message);
 	}
 
-	public void sendMany(String queue, MessageProducer producer, Rate rate) throws IOException {
+	@Override
+	public void sendWithRate(String destination, MessageProducer producer, Rate rate) throws IOException {
 		while (true) {
-			this.channel.queueDeclarePassive(queue); // Required?
+			this.channel.queueDeclarePassive(destination); // Required?
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
-				this.channel.basicPublish("", queue, null, producer.produce().getBytes());
+				this.channel.basicPublish("", destination, null, this.getSerializer().serialize(producer.produce()));
 			}
 			long after = System.nanoTime();
 			try {
@@ -84,5 +90,4 @@ public class Generator implements LifecycleComponent {
 			throw new LifecycleException(e);
 		}
 	}
-
 }

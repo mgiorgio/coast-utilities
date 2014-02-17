@@ -1,4 +1,4 @@
-package edu.uci.ics.coast.generator.rates;
+package edu.uci.ics.comon.generator.rates;
 
 public enum Rates {
 	FIXED(FixedRate.class, "fixed"), RANDOM(RandomRate.class, "random");

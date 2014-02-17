@@ -1,4 +1,4 @@
-package edu.uci.ics.coast;
+package edu.uci.ics.comon;
 
 public interface LifecycleComponent {
 
