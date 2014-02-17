@@ -48,7 +48,7 @@ public class AMQPCoastAdapter extends COASTAdapter {
 			this.connection = factory.newConnection();
 			this.channel = connection.createChannel();
 			exchange = Config.get().getString("transport.amqp.exchange", "events");
-			this.channel.exchangeDeclare(exchange, "fanout");
+			this.channel.exchangeDeclare(exchange, "topic");
 		} catch (IOException e) {
 			throw new LifecycleException(e);
 		}

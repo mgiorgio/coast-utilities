@@ -76,9 +76,9 @@ public class GeneratorTest {
 		Channel channel = connection.createChannel();
 
 		String exchange = Config.get().getString("transport.amqp.exchange", "events");
-		channel.exchangeDeclarePassive(exchange);
+		channel.exchangeDeclare(exchange, "topic");
 		String queueName = channel.queueDeclare().getQueue();
-		channel.queueBind(queueName, exchange, "");
+		channel.queueBind(queueName, exchange, QUEUE_NAME);
 
 		QueueingConsumer consumer = new QueueingConsumer(channel);
 		channel.basicConsume(queueName, true, consumer);

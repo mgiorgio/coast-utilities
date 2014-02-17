@@ -67,28 +67,27 @@ public class EventGenerator {
 	}
 
 	private static MessageProducer getMessageProducer() {
-		String classname = null;
-		try {
-			classname = Config.get().getString("producer.mode");
-			@SuppressWarnings("unchecked")
-			Class<MessageProducer> loadClass = (Class<MessageProducer>) ClassLoader.getSystemClassLoader().loadClass(classname);
-			return loadClass.newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			console.warn("{} could not be created. Using default {}", classname, IncreasingMessageProducer.class.getName());
-			return new IncreasingMessageProducer();
-		}
+		return createInstance(MessageProducer.class, "producer.mode", IncreasingMessageProducer.class);
 	}
 
 	private static Rate getRatePolicy() {
+		return createInstance(Rate.class, "rate.mode", FixedRate.class);
+	}
+
+	private static <T> T createInstance(Class<T> clazz, String key, Class<? extends T> defaultClass) {
 		String classname = null;
 		try {
-			classname = Config.get().getString("rate.mode");
+			classname = Config.get().getString(key);
 			@SuppressWarnings("unchecked")
-			Class<Rate> loadClass = (Class<Rate>) ClassLoader.getSystemClassLoader().loadClass(classname);
+			Class<T> loadClass = (Class<T>) ClassLoader.getSystemClassLoader().loadClass(classname);
 			return loadClass.newInstance();
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			console.warn("{} could not be created. Using default {}", classname, FixedRate.class.getName());
-			return new FixedRate();
+			console.warn("{} could not be created. Using default {}", classname, defaultClass.getName());
+			try {
+				return defaultClass.newInstance();
+			} catch (InstantiationException | IllegalAccessException e1) {
+				throw new RuntimeException("Unexpected classpath problem. " + defaultClass.getName() + " could not be found.");
+			}
 		}
 	}
 }
