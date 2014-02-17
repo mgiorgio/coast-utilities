@@ -15,6 +15,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 
 import edu.uci.ics.comon.LifecycleException;
 import edu.uci.ics.comon.generator.adapter.amqp.AMQPCoastAdapter;
+import edu.uci.ics.comon.generator.config.Config;
 import edu.uci.ics.comon.generator.serializer.CoMonSerializer;
 import edu.uci.ics.comon.generator.serializer.JSONCoMonSerializer;
 import edu.uci.ics.comon.protocol.CoMonMessage;
@@ -30,18 +31,21 @@ public class GeneratorTest {
 
 	@Test
 	public void testGenerator() throws IOException, ShutdownSignalException, ConsumerCancelledException, InterruptedException, LifecycleException {
-		Channel channel = createChannel();
+		try {
+			QueueingConsumer consumer = createChannel();
 
-		QueueingConsumer consumer = createConsumer(channel);
-		final CoMonMessage message = createMessage("Hello World!");
+			final CoMonMessage message = createMessage("Hello World!");
 
-		AMQPCoastAdapter generator = new AMQPCoastAdapter();
-		generator.setSerializer(serializer);
-		generator.start();
-		generator.sendOnce(QUEUE_NAME, message);
+			AMQPCoastAdapter generator = new AMQPCoastAdapter();
+			generator.setSerializer(serializer);
+			generator.start();
+			generator.sendOnce(QUEUE_NAME, message);
 
-		assertMessageReceived(consumer, message);
-
+			assertMessageReceived(consumer, message);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
 	}
 
 	private CoMonMessage createMessage(String value) {
@@ -65,21 +69,21 @@ public class GeneratorTest {
 		}
 	}
 
-	private QueueingConsumer createConsumer(Channel channel) throws IOException {
-		QueueingConsumer consumer = new QueueingConsumer(channel);
-		channel.basicConsume(QUEUE_NAME, true, consumer);
-		return consumer;
-	}
-
-	private Channel createChannel() throws IOException {
+	private QueueingConsumer createChannel() throws IOException {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost("localhost");
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
 
-		channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+		String exchange = Config.get().getString("transport.amqp.exchange", "events");
+		channel.exchangeDeclarePassive(exchange);
+		String queueName = channel.queueDeclare().getQueue();
+		channel.queueBind(queueName, exchange, "");
 
-		return channel;
+		QueueingConsumer consumer = new QueueingConsumer(channel);
+		channel.basicConsume(queueName, true, consumer);
+
+		return consumer;
 	}
 
 }

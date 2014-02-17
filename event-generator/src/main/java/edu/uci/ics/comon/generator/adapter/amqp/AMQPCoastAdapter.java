@@ -33,6 +33,8 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	private static final Logger log = LoggerFactory.getLogger(AMQPCoastAdapter.class);
 	private static final Logger console = LoggerFactory.getLogger("console");
 
+	private String exchange;
+
 	public AMQPCoastAdapter() {
 	}
 
@@ -45,6 +47,8 @@ public class AMQPCoastAdapter extends COASTAdapter {
 		try {
 			this.connection = factory.newConnection();
 			this.channel = connection.createChannel();
+			exchange = Config.get().getString("transport.amqp.exchange", "events");
+			this.channel.exchangeDeclare(exchange, "fanout");
 		} catch (IOException e) {
 			throw new LifecycleException(e);
 		}
@@ -52,18 +56,16 @@ public class AMQPCoastAdapter extends COASTAdapter {
 
 	@Override
 	public void sendOnce(String destination, CoMonMessage message) throws IOException {
-		this.channel.queueDeclarePassive(destination); // Required?
-		this.channel.basicPublish("", destination, null, this.getSerializer().serialize(message));
+		this.channel.basicPublish(this.exchange, destination, null, this.getSerializer().serialize(message));
 		log.info("Sent: {}", message);
 	}
 
 	@Override
 	public void sendWithRate(String destination, MessageProducer producer, Rate rate) throws IOException {
 		while (true) {
-			this.channel.queueDeclarePassive(destination); // Required?
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
-				this.channel.basicPublish("", destination, null, this.getSerializer().serialize(producer.produce()));
+				this.channel.basicPublish(this.exchange, destination, null, this.getSerializer().serialize(producer.produce()));
 			}
 			long after = System.nanoTime();
 			try {

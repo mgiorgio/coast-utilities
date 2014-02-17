@@ -9,14 +9,13 @@ import edu.uci.ics.comon.LifecycleException;
 import edu.uci.ics.comon.generator.adapter.COASTAdapter;
 import edu.uci.ics.comon.generator.adapter.amqp.AMQPCoastAdapter;
 import edu.uci.ics.comon.generator.config.Config;
+import edu.uci.ics.comon.generator.producer.IncreasingMessageProducer;
 import edu.uci.ics.comon.generator.producer.MessageProducer;
-import edu.uci.ics.comon.generator.producer.MessageProducers;
+import edu.uci.ics.comon.generator.rates.FixedRate;
 import edu.uci.ics.comon.generator.rates.Rate;
-import edu.uci.ics.comon.generator.rates.Rates;
 
 public class EventGenerator {
 
-	private static final Logger log = LoggerFactory.getLogger(EventGenerator.class);
 	private static final Logger console = LoggerFactory.getLogger("console");
 
 	public static void main(String[] args) {
@@ -68,10 +67,28 @@ public class EventGenerator {
 	}
 
 	private static MessageProducer getMessageProducer() {
-		return MessageProducers.get(Config.get().getString("producer.mode"));
+		String classname = null;
+		try {
+			classname = Config.get().getString("producer.mode");
+			@SuppressWarnings("unchecked")
+			Class<MessageProducer> loadClass = (Class<MessageProducer>) ClassLoader.getSystemClassLoader().loadClass(classname);
+			return loadClass.newInstance();
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			console.warn("{} could not be created. Using default {}", classname, IncreasingMessageProducer.class.getName());
+			return new IncreasingMessageProducer();
+		}
 	}
 
 	private static Rate getRatePolicy() {
-		return Rates.get(Config.get().getString("rate.mode"));
+		String classname = null;
+		try {
+			classname = Config.get().getString("rate.mode");
+			@SuppressWarnings("unchecked")
+			Class<Rate> loadClass = (Class<Rate>) ClassLoader.getSystemClassLoader().loadClass(classname);
+			return loadClass.newInstance();
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			console.warn("{} could not be created. Using default {}", classname, FixedRate.class.getName());
+			return new FixedRate();
+		}
 	}
 }
