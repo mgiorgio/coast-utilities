@@ -13,11 +13,11 @@ import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
-import edu.uci.ics.comon.LifecycleException;
-import edu.uci.ics.comon.generator.adapter.amqp.AMQPCoastAdapter;
-import edu.uci.ics.comon.generator.config.Config;
-import edu.uci.ics.comon.generator.serializer.CoMonSerializer;
-import edu.uci.ics.comon.generator.serializer.JSONCoMonSerializer;
+import edu.uci.ics.como.components.LifecycleException;
+import edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter;
+import edu.uci.ics.como.generator.config.Config;
+import edu.uci.ics.como.generator.serializer.CoMonSerializer;
+import edu.uci.ics.como.generator.serializer.JSONCoMonSerializer;
 import edu.uci.ics.comon.protocol.CoMonMessage;
 import edu.uci.ics.comon.protocol.CoMonMessageBuilder;
 
