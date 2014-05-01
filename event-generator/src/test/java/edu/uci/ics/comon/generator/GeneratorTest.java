@@ -25,7 +25,7 @@ public class GeneratorTest {
 
 	private static final String PROTOCOL_VERSION = "0.1";
 	private static final int DELIVERY_TIMEOUT = 500;
-	private static final String QUEUE_NAME = "test" + String.valueOf(System.currentTimeMillis());
+	private static final String SOURCE_ID = "test" + String.valueOf(System.currentTimeMillis());
 
 	private CoMonSerializer serializer = new JSONCoMonSerializer();
 
@@ -39,7 +39,7 @@ public class GeneratorTest {
 			AMQPCoastAdapter generator = new AMQPCoastAdapter();
 			generator.setSerializer(serializer);
 			generator.start();
-			generator.sendOnce(QUEUE_NAME, message);
+			generator.sendOnce(null, message);
 
 			assertMessageReceived(consumer, message);
 		} catch (Exception e) {
@@ -51,7 +51,7 @@ public class GeneratorTest {
 	private CoMonMessage createMessage(String value) {
 		CoMonMessageBuilder builder = new CoMonMessageBuilder();
 		builder.setEventType("info");
-		builder.setSourceID("test");
+		builder.setSourceID(SOURCE_ID);
 		builder.setValue(value);
 		builder.setVersion(PROTOCOL_VERSION);
 
@@ -78,7 +78,7 @@ public class GeneratorTest {
 		String exchange = Config.get().getString("transport.amqp.exchange", "events");
 		channel.exchangeDeclare(exchange, "topic");
 		String queueName = channel.queueDeclare().getQueue();
-		channel.queueBind(queueName, exchange, QUEUE_NAME);
+		channel.queueBind(queueName, exchange, SOURCE_ID);
 
 		QueueingConsumer consumer = new QueueingConsumer(channel);
 		channel.basicConsume(queueName, true, consumer);

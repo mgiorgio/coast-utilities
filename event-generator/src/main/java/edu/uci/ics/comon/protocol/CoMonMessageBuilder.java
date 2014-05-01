@@ -10,6 +10,8 @@ public class CoMonMessageBuilder {
 
 	private String value;
 
+	private long time;
+
 	public CoMonMessageBuilder() {
 	}
 
@@ -35,7 +37,12 @@ public class CoMonMessageBuilder {
 		msg.setEventType(eventType);
 		msg.setValue(value);
 		msg.setVersion(version);
+		msg.setTime(time);
 
 		return msg;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
 	}
 }

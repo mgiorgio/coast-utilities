@@ -12,6 +12,7 @@ public abstract class AbstractMessageProducer implements MessageProducer {
 		builder.setSourceID(Config.get().getString("producer.source.id"));
 		builder.setValue(value);
 		builder.setVersion(Config.get().getString("producer.protocol.version"));
+		builder.setTime(System.currentTimeMillis());
 
 		return builder.build();
 	}

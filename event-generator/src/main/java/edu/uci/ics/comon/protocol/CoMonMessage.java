@@ -1,5 +1,7 @@
 package edu.uci.ics.comon.protocol;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 public class CoMonMessage {
 
 	private String sourceID;
@@ -9,6 +11,8 @@ public class CoMonMessage {
 	private String version;
 
 	private String value;
+
+	private long time;
 
 	public CoMonMessage() {
 	}
@@ -45,18 +49,33 @@ public class CoMonMessage {
 		this.value = value;
 	}
 
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
 			return false;
 		}
 		CoMonMessage anotherMessage = (CoMonMessage) obj;
-		return this.eventType.equals(anotherMessage.eventType) && this.sourceID.equals(anotherMessage.sourceID) && this.value.equals(anotherMessage.value) && this.version.equals(anotherMessage.version);
+		return this.eventType.equals(anotherMessage.eventType) && this.sourceID.equals(anotherMessage.sourceID) && this.value.equals(anotherMessage.value)
+				&& this.version.equals(anotherMessage.version);
 	}
 
 	@Override
 	public int hashCode() {
-		// TODO Improve implementation.
-		return this.eventType.hashCode() ^ this.sourceID.hashCode() ^ this.value.hashCode() ^ this.version.hashCode();
+		// TODO Use built-in implementation.
+		HashCodeBuilder builder = new HashCodeBuilder();
+		builder.append(eventType);
+		builder.append(sourceID);
+		builder.append(value);
+		builder.append(version);
+		builder.append(time);
+		return builder.toHashCode();
 	}
 }
