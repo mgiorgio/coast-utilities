@@ -1,17 +1,17 @@
 package edu.uci.ics.comon.eventprocessor.input.samples.processors;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import edu.uci.ics.comon.eventprocessor.input.samples.Sample;
-import edu.uci.ics.comon.eventprocessor.mediator.EventMediator;
 
-public class Average implements SampleProcessor {
+public class Average implements Consumer<Sample> {
 
 	public Average() {
 	}
 
 	private double calculateAvg(Sample raw) {
-		Collection<Double> values = raw.values(Double.class);
+		Collection<Double> values = (Collection<Double>) raw.rawvalues();
 
 		if (values.isEmpty()) {
 			return 0d;
@@ -24,8 +24,6 @@ public class Average implements SampleProcessor {
 
 	@Override
 	public void accept(Sample sample) {
-		Sample raw = sample.getNested(EventMediator.RAW_SAMPLE_KEY);
-		sample.put("avg", calculateAvg(raw));
-
+		sample.put("avg", calculateAvg(sample));
 	}
 }

@@ -3,9 +3,11 @@ package edu.uci.ics.comon.eventprocessor.input.samples;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Sample {
 
@@ -39,9 +41,10 @@ public class Sample {
 		return (Sample) data.get(key);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> Collection<T> values(Class<T> clazz) {
-		return (Collection<T>) data.values();
+	public Collection<?> rawvalues() {
+		List<Object> list = data.entrySet().stream().filter((e) -> e.getKey().startsWith("raw.")).map((v) -> v.getValue()).collect(Collectors.toList());
+
+		return list;
 	}
 
 	public Set<Entry<String, Object>> entries() {

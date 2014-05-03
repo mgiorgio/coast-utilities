@@ -1,36 +1,65 @@
 package edu.uci.ics.comon.eventprocessor.input.samples;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.como.components.LifecycleComponent;
 import edu.uci.ics.como.components.LifecycleException;
+import edu.uci.ics.comon.eventprocessor.actions.DumpSample;
+import edu.uci.ics.comon.eventprocessor.configuration.ConfigurationUtils;
 import edu.uci.ics.comon.eventprocessor.input.samples.processors.Average;
-import edu.uci.ics.comon.eventprocessor.input.samples.processors.Printer;
-import edu.uci.ics.comon.eventprocessor.input.samples.processors.SampleProcessor;
 import edu.uci.ics.comon.eventprocessor.mediator.EventMediator;
+import edu.uci.ics.comon.eventprocessor.rules.Rule;
 
 public class EventSampler implements LifecycleComponent {
+
+	private static final Logger console = LoggerFactory.getLogger("console");
 
 	private EventMediator eventMediator;
 	private ScheduledExecutorService scheduledThreadPool;
 
-	private Stream<SampleProcessor> sampleProcessors;
+	private Consumer<Sample> sampleProcessors;
 
 	public EventSampler() {
 	}
 
-	private Stream<SampleProcessor> createStream() {
-		List<SampleProcessor> list = new ArrayList<>();
+	private Consumer<Sample> createStream() {
+		return new Average().andThen(new DumpSample()).andThen(createRules());
+	}
 
-		list.add(new Average());
-		list.add(new Printer());
+	private Consumer<Sample> createRules() {
+		List<HierarchicalConfiguration> configs = ConfigurationUtils.getConfigs("rules.rule");
 
-		return list.stream();
+		Rule rule = null;
+		for (HierarchicalConfiguration ruleConf : configs) {
+			try {
+				if (rule == null) {
+					rule = createRule(ruleConf);
+				} else {
+					rule.andThen(createRule(ruleConf));
+				}
+				rule.init();
+			} catch (LifecycleException e) {
+				console.error("Rule could not be created: " + e.getMessage());
+			}
+		}
+
+		return rule;
+	}
+
+	private Rule createRule(HierarchicalConfiguration ruleConf) {
+
+		Rule rule = new Rule();
+		rule.setConfig(ruleConf);
+
+		return rule;
 	}
 
 	public EventMediator getEventMediator() {
@@ -49,13 +78,13 @@ public class EventSampler implements LifecycleComponent {
 
 	@Override
 	public void start() throws LifecycleException {
-		scheduledThreadPool.schedule(() -> sample(), 1, TimeUnit.SECONDS);
+		scheduledThreadPool.scheduleWithFixedDelay(() -> sample(), 1, 1, TimeUnit.SECONDS);
 	}
 
 	private void sample() {
 		Sample sample = this.eventMediator.sample();
 
-		sampleProcessors.forEach((samplerProcessor) -> samplerProcessor.accept(sample));
+		sampleProcessors.accept(sample);
 	}
 
 	@Override
