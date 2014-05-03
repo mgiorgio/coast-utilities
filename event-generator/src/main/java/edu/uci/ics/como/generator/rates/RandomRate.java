@@ -2,9 +2,9 @@ package edu.uci.ics.como.generator.rates;
 
 import java.util.Random;
 
-import edu.uci.ics.como.generator.config.Config;
+import edu.uci.ics.como.components.LifecycleException;
 
-public class RandomRate implements Rate {
+public class RandomRate extends AbstractRate {
 
 	private Random random;
 
@@ -13,9 +13,14 @@ public class RandomRate implements Rate {
 	private int max;
 
 	public RandomRate() {
+	}
+	
+	@Override
+	public void init() throws LifecycleException {
+		super.init();
 		random = new Random(System.currentTimeMillis());
-		min = Config.get().getInt("rate.random.min");
-		max = Config.get().getInt("rate.random.max");
+		min = getConfig().getInt("min");
+		max = getConfig().getInt("max");
 	}
 
 	@Override

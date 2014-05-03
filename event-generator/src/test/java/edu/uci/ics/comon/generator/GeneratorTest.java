@@ -39,7 +39,7 @@ public class GeneratorTest {
 			AMQPCoastAdapter generator = new AMQPCoastAdapter();
 			generator.setSerializer(serializer);
 			generator.start();
-			generator.sendOnce(null, message);
+			generator.sendOnce(message);
 
 			assertMessageReceived(consumer, message);
 		} catch (Exception e) {
@@ -75,7 +75,7 @@ public class GeneratorTest {
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
 
-		String exchange = Config.get().getString("transport.amqp.exchange", "events");
+		String exchange = Config.get().getString("transport.exchange", "events");
 		channel.exchangeDeclare(exchange, "topic");
 		String queueName = channel.queueDeclare().getQueue();
 		channel.queueBind(queueName, exchange, SOURCE_ID);

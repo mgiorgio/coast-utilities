@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.como.generator.adapter.COASTAdapter;
-import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
 import edu.uci.ics.comon.protocol.CoMonMessage;
@@ -58,7 +57,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(URL_preffix);
-		builder.append(Config.get().getString("transport.dweetio.name"));
+		builder.append(getConfig().getString("transport.id"));
 		builder.append("?");
 		builder.append(key);
 		builder.append("=");
@@ -101,7 +100,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	 * , edu.uci.ics.comon.protocol.CoMonMessage)
 	 */
 	@Override
-	public void sendOnce(String destination, CoMonMessage message) throws IOException {
+	public void sendOnce(CoMonMessage message) throws IOException {
 		doSend(message.getValue());
 	}
 
@@ -114,7 +113,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	 * edu.uci.ics.comon.generator.rates.Rate)
 	 */
 	@Override
-	public void sendWithRate(String destination, MessageProducer producer, Rate rate) throws IOException {
+	public void sendWithRate(MessageProducer producer, Rate rate) throws IOException {
 		while (true) {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {

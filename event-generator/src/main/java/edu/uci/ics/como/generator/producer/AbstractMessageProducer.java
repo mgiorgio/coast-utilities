@@ -1,20 +1,43 @@
 package edu.uci.ics.como.generator.producer;
 
-import edu.uci.ics.como.generator.config.Config;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+
+import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.comon.protocol.CoMonMessage;
 import edu.uci.ics.comon.protocol.CoMonMessageBuilder;
 
 public abstract class AbstractMessageProducer implements MessageProducer {
 
+	private HierarchicalConfiguration config;
+
 	protected CoMonMessage createCoMonMessage(String value) {
 		CoMonMessageBuilder builder = new CoMonMessageBuilder();
-		builder.setEventType(Config.get().getString("producer.event.type"));
-		builder.setSourceID(Config.get().getString("producer.source.id"));
+		builder.setEventType(getConfig().getString("event.type"));
+		builder.setSourceID(getConfig().getString("source"));
 		builder.setValue(value);
-		builder.setVersion(Config.get().getString("producer.protocol.version"));
+		builder.setVersion(getConfig().getString("event.protocol"));
 		builder.setTime(System.currentTimeMillis());
 
 		return builder.build();
 	}
 
+	public HierarchicalConfiguration getConfig() {
+		return config;
+	}
+
+	public void setConfig(HierarchicalConfiguration config) {
+		this.config = config;
+	}
+
+	@Override
+	public void init() throws LifecycleException {
+	}
+
+	@Override
+	public void start() throws LifecycleException {
+	}
+
+	@Override
+	public void stop() throws LifecycleException {
+	}
 }

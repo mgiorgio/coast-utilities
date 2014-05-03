@@ -5,7 +5,7 @@ package edu.uci.ics.como.generator.producer;
 
 import java.util.Random;
 
-import edu.uci.ics.como.generator.config.Config;
+import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.comon.protocol.CoMonMessage;
 
 /**
@@ -24,9 +24,14 @@ public class RandomMessageProducer extends AbstractMessageProducer {
 	 * 
 	 */
 	public RandomMessageProducer() {
+	}
+
+	@Override
+	public void init() throws LifecycleException {
+		super.init();
 		random = new Random(System.currentTimeMillis());
-		min = Config.get().getInt("producer.random.min");
-		max = Config.get().getInt("producer.random.max");
+		min = getConfig().getInt("min");
+		max = getConfig().getInt("max");
 	}
 
 	/*

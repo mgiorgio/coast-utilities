@@ -1,13 +1,18 @@
 package edu.uci.ics.como.generator.rates;
 
-import edu.uci.ics.como.generator.config.Config;
+import edu.uci.ics.como.components.LifecycleException;
 
-public class FixedRate implements Rate {
+public class FixedRate extends AbstractRate {
 
 	private int rate;
 
 	public FixedRate() {
-		this.rate = Config.get().getInt("rate.fixed.value");
+	}
+	
+	@Override
+	public void init() throws LifecycleException {
+		super.init();
+		this.rate = getConfig().getInt("value");
 	}
 
 	@Override

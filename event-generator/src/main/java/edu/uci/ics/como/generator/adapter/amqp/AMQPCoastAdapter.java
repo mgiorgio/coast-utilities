@@ -42,12 +42,12 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	public void start() throws LifecycleException {
 		console.info("Starting Generator...");
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost(Config.get().getString("transport.amqp.host", "localhost"));
-		factory.setPort(Config.get().getInt("transport.amqp.port", ConnectionFactory.DEFAULT_AMQP_PORT));
+		factory.setHost(Config.get().getString("transport.host", "localhost"));
+		factory.setPort(Config.get().getInt("transport.port", ConnectionFactory.DEFAULT_AMQP_PORT));
 		try {
 			this.connection = factory.newConnection();
 			this.channel = connection.createChannel();
-			exchange = Config.get().getString("transport.amqp.exchange", "events");
+			exchange = Config.get().getString("transport.exchange", "events");
 			this.channel.exchangeDeclare(exchange, "topic");
 		} catch (IOException e) {
 			throw new LifecycleException(e);
@@ -55,13 +55,13 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	}
 
 	@Override
-	public void sendOnce(String destination, CoMonMessage message) throws IOException {
+	public void sendOnce(CoMonMessage message) throws IOException {
 		this.channel.basicPublish(this.exchange, message.getSourceID(), null, this.getSerializer().serialize(message));
 		log.info("Sent: {}", message);
 	}
 
 	@Override
-	public void sendWithRate(String destination, MessageProducer producer, Rate rate) throws IOException {
+	public void sendWithRate(MessageProducer producer, Rate rate) throws IOException {
 		while (true) {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {

@@ -1,6 +1,6 @@
 package edu.uci.ics.como.generator.producer;
 
-import edu.uci.ics.como.generator.config.Config;
+import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.comon.protocol.CoMonMessage;
 
 public class IncreasingMessageProducer extends AbstractMessageProducer {
@@ -9,8 +9,13 @@ public class IncreasingMessageProducer extends AbstractMessageProducer {
 	private String prefix;
 
 	public IncreasingMessageProducer() {
-		this.prefix = Config.get().getString("producer.increasing.prefix");
-		this.start = Config.get().getInt("producer.increasing.start");
+	}
+	
+	@Override
+	public void init() throws LifecycleException {
+		super.init();
+		this.prefix = getConfig().getString("prefix");
+		this.start = getConfig().getInt("start");
 	}
 
 	@Override
