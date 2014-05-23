@@ -33,12 +33,6 @@
 			</predicate>
 			<action>
 				<class>edu.uci.ics.como.eventprocessor.actions.MailAction</class>
-<!-- T-Mobile: phonenumber@tmomail.net  -->
-<!-- Virgin Mobile: phonenumber@vmobl.com  -->
-<!-- Cingular: phonenumber@cingularme.com  -->
-<!-- Sprint: phonenumber@messaging.sprintpcs.com -->
-<!-- Verizon: phonenumber@vtext.com -->
-<!-- Nextel: phonenumber@messaging.nextel.com -->
 				<to>4155288582@tmomail.net</to>
 				<from>mgiorgio@uci.edu</from>
 				<password></password>

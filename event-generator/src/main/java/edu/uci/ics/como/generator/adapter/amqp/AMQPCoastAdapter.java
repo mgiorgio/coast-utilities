@@ -15,7 +15,7 @@ import edu.uci.ics.como.generator.adapter.COASTAdapter;
 import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
-import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessage;
 
 /**
  * The {@link AMQPCoastAdapter} interacts with the {@link MessageProducer} and

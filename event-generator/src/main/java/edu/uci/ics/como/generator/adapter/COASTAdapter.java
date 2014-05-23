@@ -14,7 +14,7 @@ import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
 import edu.uci.ics.como.generator.serializer.CoMonSerializer;
 import edu.uci.ics.como.generator.serializer.JSONCoMonSerializer;
-import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessage;
 
 /**
  * This interface defines the actions that can be performed by the Event

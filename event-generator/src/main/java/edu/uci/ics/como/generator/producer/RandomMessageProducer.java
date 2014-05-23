@@ -6,7 +6,7 @@ package edu.uci.ics.como.generator.producer;
 import java.util.Random;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessage;
 
 /**
  * @author matias

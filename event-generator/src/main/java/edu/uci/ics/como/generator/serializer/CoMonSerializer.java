@@ -1,6 +1,6 @@
 package edu.uci.ics.como.generator.serializer;
 
-import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessage;
 
 public interface CoMonSerializer {
 

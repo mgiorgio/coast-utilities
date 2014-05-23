@@ -13,7 +13,7 @@
     </encoder>
   </appender>
   <appender name="file" class="ch.qos.logback.core.FileAppender">
-  	<file>githubuserskills.log</file>
+  	<file>eventgenerator.log</file>
   	<append>false</append>
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%-5level] [%logger{36}] - %msg%n</pattern>
@@ -25,7 +25,7 @@
     <appender-ref ref="file" />
   </logger>
 
-  <logger name="edu.uci.ics.coast" level="ERROR">
+  <logger name="edu.uci.ics.como" level="ERROR">
   	<appender-ref ref="STDOUT" />
     <appender-ref ref="file" />
   </logger>

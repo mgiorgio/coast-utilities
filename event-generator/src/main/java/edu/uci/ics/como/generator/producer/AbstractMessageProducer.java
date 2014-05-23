@@ -3,8 +3,8 @@ package edu.uci.ics.como.generator.producer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.comon.protocol.CoMonMessage;
-import edu.uci.ics.comon.protocol.CoMonMessageBuilder;
+import edu.uci.ics.como.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessageBuilder;
 
 public abstract class AbstractMessageProducer implements MessageProducer {
 

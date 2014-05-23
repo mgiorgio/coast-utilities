@@ -18,8 +18,8 @@ import edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter;
 import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.generator.serializer.CoMonSerializer;
 import edu.uci.ics.como.generator.serializer.JSONCoMonSerializer;
-import edu.uci.ics.comon.protocol.CoMonMessage;
-import edu.uci.ics.comon.protocol.CoMonMessageBuilder;
+import edu.uci.ics.como.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessageBuilder;
 
 public class GeneratorTest {
 

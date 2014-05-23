@@ -18,7 +18,7 @@
       <directory>${project.basedir}/release/cfg</directory>
       <outputDirectory>/cfg</outputDirectory>
       <includes>
-        <include>generator.xml</include>
+        <include>config.xml</include>
         <include>logback.xml</include>
       </includes>
     </fileSet>

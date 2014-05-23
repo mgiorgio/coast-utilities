@@ -1,7 +1,7 @@
 package edu.uci.ics.como.generator.producer;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.comon.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMonMessage;
 
 public class ConstantMessageProducer extends AbstractMessageProducer {
 
