@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.http.HttpResponse;
@@ -101,6 +103,8 @@ public class DweetIOInputStream implements EventInputStream<Double> {
 
 		private Gson gson = new Gson();
 
+		private Pattern jsonPattern = Pattern.compile("\\{.*\\}");;
+
 		@Override
 		protected void onResponseReceived(final HttpResponse response) {
 			// Nothing to do, so far.
@@ -112,18 +116,23 @@ public class DweetIOInputStream implements EventInputStream<Double> {
 			while (buf.hasRemaining()) {
 				char c = buf.get();
 				builder.append(c);
-				if (c == '}' || c == ']') {
-					// It might be end of JSON message.
-					try {
-						Map<String, Object> map = gson.fromJson(builder.toString(), Map.class);
-						Map<String, Double> contentMap = (Map<String, Double>) map.get("content");
-						eventMediator.offer(DweetIOInputStream.this, contentMap.get("data"));
-
-						builder = new StringBuilder(buf.length());
-					} catch (JsonSyntaxException e) {
-						// e.printStackTrace();
+				// if (c == '}' || c == ']') {
+				// It might be end of JSON message.
+				try {
+					String string = builder.toString();
+					Matcher matcher = jsonPattern.matcher(string);
+					if (matcher.find()) {
+						string = matcher.group().replace("\\", "");
 					}
+					Map<String, Object> map = gson.fromJson(string, Map.class);
+					Map<String, Double> contentMap = (Map<String, Double>) map.get("content");
+					eventMediator.offer(DweetIOInputStream.this, contentMap.get("data"));
+
+					builder = new StringBuilder(buf.length());
+				} catch (JsonSyntaxException e) {
+					// e.printStackTrace();
 				}
+				// }
 			}
 
 		}
