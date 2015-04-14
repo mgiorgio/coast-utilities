@@ -17,7 +17,7 @@ import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.como.generator.adapter.COASTAdapter;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
-import edu.uci.ics.como.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMoMessage;
 
 /**
  * @author matias
@@ -100,7 +100,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	 * , edu.uci.ics.comon.protocol.CoMonMessage)
 	 */
 	@Override
-	public void sendOnce(CoMonMessage message) throws IOException {
+	public void sendOnce(CoMoMessage message) throws IOException {
 		doSend(message.getValue());
 	}
 
@@ -117,7 +117,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 		while (true) {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
-				CoMonMessage message = producer.produce();
+				CoMoMessage message = producer.produce();
 				doSend(message.getValue());
 			}
 			long after = System.nanoTime();

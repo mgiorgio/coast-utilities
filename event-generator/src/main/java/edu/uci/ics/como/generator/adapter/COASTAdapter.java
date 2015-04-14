@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.como.components.LifecycleComponent;
 import edu.uci.ics.como.components.LifecycleException;
+import edu.uci.ics.como.components.serializer.CoMonSerializer;
+import edu.uci.ics.como.components.serializer.JSONCoMonSerializer;
 import edu.uci.ics.como.generator.Configurable;
 import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
-import edu.uci.ics.como.generator.serializer.CoMonSerializer;
-import edu.uci.ics.como.generator.serializer.JSONCoMonSerializer;
-import edu.uci.ics.como.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMoMessage;
 
 /**
  * This interface defines the actions that can be performed by the Event
@@ -23,7 +23,7 @@ import edu.uci.ics.como.protocol.CoMonMessage;
 public abstract class COASTAdapter implements LifecycleComponent, Configurable {
 
 	private static final Logger log = LoggerFactory.getLogger(COASTAdapter.class);
-	
+
 	private HierarchicalConfiguration config;
 
 	private CoMonSerializer serializer;
@@ -77,7 +77,7 @@ public abstract class COASTAdapter implements LifecycleComponent, Configurable {
 	 *            The message to be sent.
 	 * @throws IOException
 	 */
-	public abstract void sendOnce(CoMonMessage message) throws IOException;
+	public abstract void sendOnce(CoMoMessage message) throws IOException;
 
 	/**
 	 * Keeps sending messages produced by the given {@link MessageProducer} at

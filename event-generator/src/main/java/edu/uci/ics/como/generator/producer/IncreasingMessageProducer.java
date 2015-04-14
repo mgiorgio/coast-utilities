@@ -1,7 +1,7 @@
 package edu.uci.ics.como.generator.producer;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.protocol.CoMonMessage;
+import edu.uci.ics.como.protocol.CoMoMessage;
 
 public class IncreasingMessageProducer extends AbstractMessageProducer {
 
@@ -10,7 +10,7 @@ public class IncreasingMessageProducer extends AbstractMessageProducer {
 
 	public IncreasingMessageProducer() {
 	}
-	
+
 	@Override
 	public void init() throws LifecycleException {
 		super.init();
@@ -19,8 +19,8 @@ public class IncreasingMessageProducer extends AbstractMessageProducer {
 	}
 
 	@Override
-	public CoMonMessage produce() {
-		return this.createCoMonMessage(new StringBuilder().append(prefix).append(start++).toString());
+	public CoMoMessage produce() {
+		return this.createCoMoMessage(new StringBuilder().append(prefix).append(start++).toString());
 	}
 
 }

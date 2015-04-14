@@ -14,12 +14,12 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
 import edu.uci.ics.como.components.LifecycleException;
+import edu.uci.ics.como.components.serializer.CoMonSerializer;
+import edu.uci.ics.como.components.serializer.JSONCoMonSerializer;
 import edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter;
 import edu.uci.ics.como.generator.config.Config;
-import edu.uci.ics.como.generator.serializer.CoMonSerializer;
-import edu.uci.ics.como.generator.serializer.JSONCoMonSerializer;
-import edu.uci.ics.como.protocol.CoMonMessage;
-import edu.uci.ics.como.protocol.CoMonMessageBuilder;
+import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.CoMoMessageBuilder;
 
 public class GeneratorTest {
 
@@ -34,7 +34,7 @@ public class GeneratorTest {
 		try {
 			QueueingConsumer consumer = createChannel();
 
-			final CoMonMessage message = createMessage("Hello World!");
+			final CoMoMessage message = createMessage("Hello World!");
 
 			AMQPCoastAdapter generator = new AMQPCoastAdapter();
 			generator.setSerializer(serializer);
@@ -48,8 +48,8 @@ public class GeneratorTest {
 		}
 	}
 
-	private CoMonMessage createMessage(String value) {
-		CoMonMessageBuilder builder = new CoMonMessageBuilder();
+	private CoMoMessage createMessage(String value) {
+		CoMoMessageBuilder builder = new CoMoMessageBuilder();
 		builder.setEventType("info");
 		builder.setSourceID(SOURCE_ID);
 		builder.setValue(value);
@@ -58,11 +58,11 @@ public class GeneratorTest {
 		return builder.build();
 	}
 
-	private void assertMessageReceived(QueueingConsumer consumer, CoMonMessage expectedMessage) {
+	private void assertMessageReceived(QueueingConsumer consumer, CoMoMessage expectedMessage) {
 		QueueingConsumer.Delivery delivery;
 		try {
 			delivery = consumer.nextDelivery(DELIVERY_TIMEOUT);
-			CoMonMessage message = serializer.deserialize(delivery.getBody());
+			CoMoMessage message = serializer.deserialize(delivery.getBody());
 			Assert.assertEquals("Message received is different from the expected one.", message, expectedMessage);
 		} catch (ShutdownSignalException | ConsumerCancelledException | InterruptedException e) {
 			Assert.fail(e.getMessage());

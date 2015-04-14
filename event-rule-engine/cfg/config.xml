@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<config>
+	<inputstreams>
+		<stream>
+			<class>edu.uci.ics.como.eventprocessor.input.RabbitMQInputStream</class>
+			<host>peru.local</host>
+			<port>5672</port>
+			<login>coastdev</login>
+			<pass>Hi123</pass>
+			<vhost>/</vhost>
+			<queue>coast</queue>
+			<exchange>coast</exchange>
+		</stream>
+	</inputstreams>
+	<rules>
+		<rule>
+			<predicate>
+				<class>edu.uci.ics.como.eventprocessor.rules.predicates.TruePredicate</class>
+			</predicate>
+			<action>
+				<class>edu.uci.ics.como.eventprocessor.rules.actions.DumpSample</class>
+			</action>
+		</rule>
+	</rules>
+</config>

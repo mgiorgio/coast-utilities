@@ -3,15 +3,15 @@ package edu.uci.ics.como.generator.producer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.protocol.CoMonMessage;
-import edu.uci.ics.como.protocol.CoMonMessageBuilder;
+import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.CoMoMessageBuilder;
 
 public abstract class AbstractMessageProducer implements MessageProducer {
 
 	private HierarchicalConfiguration config;
 
-	protected CoMonMessage createCoMonMessage(String value) {
-		CoMonMessageBuilder builder = new CoMonMessageBuilder();
+	protected CoMoMessage createCoMoMessage(String value) {
+		CoMoMessageBuilder builder = new CoMoMessageBuilder();
 		builder.setEventType(getConfig().getString("event.type"));
 		builder.setSourceID(getConfig().getString("source"));
 		builder.setValue(value);
