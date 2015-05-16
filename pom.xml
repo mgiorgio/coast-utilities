@@ -10,6 +10,7 @@
         <module>event-rule-engine</module>
  	    <module>como-components</module>
  	    <module>como-protocol</module>
+ 	    <module>como-rabbitmq-mongodb-bridge</module>
   </modules>
     <build>
     <plugins>
