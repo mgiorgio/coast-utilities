@@ -10,11 +10,15 @@
 		<camel:route id="rabbit-to-mongo">
 			<camel:from uri="rabbitmq" />
 			<camel:unmarshal ref="gson" />
+			<camel:process ref="addIdProcessor" />
 			<camel:to
 				uri="mongodb:mongoConnection?database=coast&amp;collection=events&amp;operation=insert" />
 		</camel:route>
 		<!-- </routes> -->
 	</camel:camelContext>
+
+	<bean id="addIdProcessor" class="edu.uci.ics.como.rabbitmqmongodbbridge.AddIDProcessor">
+	</bean>
 
 	<bean id="gson" class="org.apache.camel.component.gson.GsonDataFormat">
 	</bean>
