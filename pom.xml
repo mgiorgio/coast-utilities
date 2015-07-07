@@ -11,6 +11,7 @@
  	    <module>como-components</module>
  	    <module>como-protocol</module>
  	    <module>como-rabbitmq-mongodb-bridge</module>
+ 	    <module>como-analyzer</module>
   </modules>
     <build>
     <plugins>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	<global>
+		<start>1</start>
+		<end>10</end>
+		<protocolversion>0.1</protocolversion>
+		<mongo-host>peru.local</mongo-host>
+		<mongo-port>27017</mongo-port>
+		<mongo-db>coast</mongo-db>
+		<mongo-collection>events</mongo-collection>
+	</global>
+
+	<assertions>
+		<pattern severity="fail">
+			<event>
+				<island>alice</island>
+				<islet>x</islet>
+				<type>curl-new</type>
+				<place>INTER</place>
+			</event>
+			<event>
+				<island>bob</island>
+				<islet>y</islet>
+				<type>curl-new</type>
+				<place>INTER</place>
+			</event>
+		</pattern>
+		<not>
+			<pattern severity="warning">
+				<event>
+					<island>bob</island>
+					<islet>z</islet>
+				</event>
+			</pattern>
+		</not>
+		<!-- Default severity is *fail* -->
+		<volume timerange="20" unit="seconds" minrange="0" maxrange="10">
+			<event>
+				<island>alice</island>
+				<islet>x</islet>
+			</event>
+		</volume>
+	</assertions>
+
+</config>

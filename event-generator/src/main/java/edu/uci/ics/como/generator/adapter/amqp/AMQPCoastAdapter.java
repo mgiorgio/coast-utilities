@@ -12,7 +12,6 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.como.generator.adapter.COASTAdapter;
-import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
 import edu.uci.ics.como.protocol.CoMoMessage;
@@ -42,13 +41,15 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	public void start() throws LifecycleException {
 		console.info("Starting Generator...");
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost(Config.get().getString("transport.host", "localhost"));
-		factory.setPort(Config.get().getInt("transport.port", ConnectionFactory.DEFAULT_AMQP_PORT));
+		factory.setHost(getConfig().getString("transport.host", "localhost"));
+		factory.setPort(getConfig().getInt("transport.port", ConnectionFactory.DEFAULT_AMQP_PORT));
+		factory.setUsername(getConfig().getString("transport.username", ""));
+		factory.setPassword(getConfig().getString("transport.password", ""));
 		try {
 			this.connection = factory.newConnection();
 			this.channel = connection.createChannel();
-			exchange = Config.get().getString("transport.exchange", "events");
-			this.channel.exchangeDeclare(exchange, "topic");
+
+			this.channel.queueDeclare(getConfig().getString("transport.queue", "coast"), true, false, false, null);
 		} catch (IOException e) {
 			throw new LifecycleException(e);
 		}
@@ -56,7 +57,7 @@ public class AMQPCoastAdapter extends COASTAdapter {
 
 	@Override
 	public void sendOnce(CoMoMessage message) throws IOException {
-		this.channel.basicPublish(this.exchange, message.getSourceID(), null, this.getSerializer().serialize(message));
+		this.channel.basicPublish(this.exchange, getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
 		log.info("Sent: {}", message);
 	}
 
@@ -66,11 +67,11 @@ public class AMQPCoastAdapter extends COASTAdapter {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
 				CoMoMessage message = producer.produce();
-				this.channel.basicPublish(this.exchange, message.getSourceID(), null, this.getSerializer().serialize(message));
+				this.channel.basicPublish("", getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
 			}
 			long after = System.nanoTime();
 			try {
-				Thread.sleep(1000 - TimeUnit.NANOSECONDS.toMillis(after - before));
+				Thread.sleep(Math.max(0, 1000 - TimeUnit.NANOSECONDS.toMillis(after - before)));
 			} catch (InterruptedException e) {
 				System.err.println(e.getMessage());
 			}
