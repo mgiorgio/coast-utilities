@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>edu.uci.ics.como</groupId>
 	<artifactId>como-rabbitmq-mongodb-bridge</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>como-rabbitmq-mongodb-bridge</name>
 	<url>http://maven.apache.org</url>
 
