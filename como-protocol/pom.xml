@@ -9,6 +9,7 @@
   </parent>
   <artifactId>como-protocol</artifactId>
   <name>como-protocol</name>
+  <version>0.0.2-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
