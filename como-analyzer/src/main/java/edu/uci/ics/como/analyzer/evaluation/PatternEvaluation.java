@@ -18,7 +18,7 @@ import edu.uci.ics.como.analyzer.query.mongodb.MongoQueryHandler;
  */
 public class PatternEvaluation extends EventsBasedEvaluation {
 
-	private static final String ID_FIELD = "id";
+	private static final String ID_FIELD = "eventID";
 
 	/**
 	 * 
@@ -40,7 +40,7 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 			if (id != null) {
 				// It isn't the 1st event, then the current event must have come
 				// later than the previous one.
-				query.addField(ID_FIELD, id, QueryOperation.GT);
+				query.addQueryMember(ID_FIELD, id, QueryOperation.GT);
 			}
 
 			// Run Query.
