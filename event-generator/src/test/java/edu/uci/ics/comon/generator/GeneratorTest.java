@@ -18,8 +18,8 @@ import edu.uci.ics.como.components.serializer.CoMonSerializer;
 import edu.uci.ics.como.components.serializer.JSONCoMonSerializer;
 import edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter;
 import edu.uci.ics.como.generator.config.Config;
-import edu.uci.ics.como.protocol.CoMoMessage;
-import edu.uci.ics.como.protocol.CoMoMessageBuilder;
+import edu.uci.ics.como.protocol.COMETMessage;
+import edu.uci.ics.como.protocol.COMETMessageBuilder;
 
 public class GeneratorTest {
 
@@ -34,7 +34,7 @@ public class GeneratorTest {
 		try {
 			QueueingConsumer consumer = createChannel();
 
-			final CoMoMessage message = createMessage("Hello World!");
+			final COMETMessage message = createMessage("Hello World!");
 
 			AMQPCoastAdapter generator = new AMQPCoastAdapter();
 			generator.setSerializer(serializer);
@@ -48,8 +48,8 @@ public class GeneratorTest {
 		}
 	}
 
-	private CoMoMessage createMessage(String value) {
-		CoMoMessageBuilder builder = new CoMoMessageBuilder();
+	private COMETMessage createMessage(String value) {
+		COMETMessageBuilder builder = new COMETMessageBuilder();
 		builder.setEventType("info");
 		builder.setSourceID(SOURCE_ID);
 		builder.setValue(value);
@@ -58,11 +58,11 @@ public class GeneratorTest {
 		return builder.build();
 	}
 
-	private void assertMessageReceived(QueueingConsumer consumer, CoMoMessage expectedMessage) {
+	private void assertMessageReceived(QueueingConsumer consumer, COMETMessage expectedMessage) {
 		QueueingConsumer.Delivery delivery;
 		try {
 			delivery = consumer.nextDelivery(DELIVERY_TIMEOUT);
-			CoMoMessage message = serializer.deserialize(delivery.getBody());
+			COMETMessage message = serializer.deserialize(delivery.getBody());
 			Assert.assertEquals("Message received is different from the expected one.", message, expectedMessage);
 		} catch (ShutdownSignalException | ConsumerCancelledException | InterruptedException e) {
 			Assert.fail(e.getMessage());

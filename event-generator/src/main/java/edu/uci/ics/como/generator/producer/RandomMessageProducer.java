@@ -6,7 +6,7 @@ package edu.uci.ics.como.generator.producer;
 import java.util.Random;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
 
 /**
  * @author matias
@@ -40,7 +40,7 @@ public class RandomMessageProducer extends AbstractMessageProducer {
 	 * @see edu.uci.ics.comon.generator.producer.MessageProducer#produce()
 	 */
 	@Override
-	public CoMoMessage produce() {
+	public COMETMessage produce() {
 		return this.createCoMoMessage(String.valueOf(random.nextInt(max - min + 1) + min));
 	}
 }

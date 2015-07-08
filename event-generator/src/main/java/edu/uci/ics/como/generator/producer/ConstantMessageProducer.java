@@ -1,11 +1,11 @@
 package edu.uci.ics.como.generator.producer;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
 
 public class ConstantMessageProducer extends AbstractMessageProducer {
 
-	private CoMoMessage message;
+	private COMETMessage message;
 
 	public ConstantMessageProducer() {
 	}
@@ -17,7 +17,7 @@ public class ConstantMessageProducer extends AbstractMessageProducer {
 	}
 
 	@Override
-	public CoMoMessage produce() {
+	public COMETMessage produce() {
 		return this.message;
 	}
 

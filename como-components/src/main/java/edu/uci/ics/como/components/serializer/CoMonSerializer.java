@@ -1,10 +1,10 @@
 package edu.uci.ics.como.components.serializer;
 
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
 
 public interface CoMonSerializer {
 
-	public byte[] serialize(CoMoMessage message);
+	public byte[] serialize(COMETMessage message);
 
-	public CoMoMessage deserialize(byte[] bytes);
+	public COMETMessage deserialize(byte[] bytes);
 }

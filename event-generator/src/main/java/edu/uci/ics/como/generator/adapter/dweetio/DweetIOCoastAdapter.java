@@ -17,7 +17,8 @@ import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.como.generator.adapter.COASTAdapter;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
+import edu.uci.ics.como.protocol.COMETMessageBuilder.COMETLegacyFields;
 
 /**
  * @author matias
@@ -47,10 +48,6 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 		console.info("Sent!");
 		httpClient.close();
 		httpClient = HttpClients.createDefault();
-	}
-
-	private void doSend(double measurement) throws ClientProtocolException, IOException {
-		this.doSend(Double.toString(measurement));
 	}
 
 	private String formatURL(String key, String value) {
@@ -100,8 +97,8 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	 * , edu.uci.ics.comon.protocol.CoMonMessage)
 	 */
 	@Override
-	public void sendOnce(CoMoMessage message) throws IOException {
-		doSend(message.getValue());
+	public void sendOnce(COMETMessage message) throws IOException {
+		doSend(getMessageValue(message));
 	}
 
 	/*
@@ -117,8 +114,8 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 		while (true) {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
-				CoMoMessage message = producer.produce();
-				doSend(message.getValue());
+				COMETMessage message = producer.produce();
+				doSend(getMessageValue(message));
 			}
 			long after = System.nanoTime();
 			try {
@@ -130,5 +127,10 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 				System.err.println(e.getMessage());
 			}
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private String getMessageValue(COMETMessage message) {
+		return (String) message.get(COMETLegacyFields.VALUE.getFieldName());
 	}
 }

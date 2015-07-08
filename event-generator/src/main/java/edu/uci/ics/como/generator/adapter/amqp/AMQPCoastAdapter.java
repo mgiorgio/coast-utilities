@@ -14,7 +14,7 @@ import edu.uci.ics.como.components.LifecycleException;
 import edu.uci.ics.como.generator.adapter.COASTAdapter;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
 
 /**
  * The {@link AMQPCoastAdapter} interacts with the {@link MessageProducer} and
@@ -56,7 +56,7 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	}
 
 	@Override
-	public void sendOnce(CoMoMessage message) throws IOException {
+	public void sendOnce(COMETMessage message) throws IOException {
 		this.channel.basicPublish(this.exchange, getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
 		log.info("Sent: {}", message);
 	}
@@ -66,7 +66,7 @@ public class AMQPCoastAdapter extends COASTAdapter {
 		while (true) {
 			long before = System.nanoTime();
 			for (int i = 0; i < rate.howMany(); i++) {
-				CoMoMessage message = producer.produce();
+				COMETMessage message = producer.produce();
 				this.channel.basicPublish("", getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
 			}
 			long after = System.nanoTime();

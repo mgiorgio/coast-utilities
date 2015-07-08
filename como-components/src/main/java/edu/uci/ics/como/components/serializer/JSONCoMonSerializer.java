@@ -2,7 +2,7 @@ package edu.uci.ics.como.components.serializer;
 
 import com.google.gson.Gson;
 
-import edu.uci.ics.como.protocol.CoMoMessage;
+import edu.uci.ics.como.protocol.COMETMessage;
 
 public class JSONCoMonSerializer implements CoMonSerializer {
 
@@ -12,13 +12,13 @@ public class JSONCoMonSerializer implements CoMonSerializer {
 	}
 
 	@Override
-	public byte[] serialize(CoMoMessage message) {
+	public byte[] serialize(COMETMessage message) {
 		return gson.toJson(message).getBytes();
 	}
 
 	@Override
-	public CoMoMessage deserialize(byte[] bytes) {
-		return gson.fromJson(new String(bytes), CoMoMessage.class);
+	public COMETMessage deserialize(byte[] bytes) {
+		return gson.fromJson(new String(bytes), COMETMessage.class);
 	}
 
 }
