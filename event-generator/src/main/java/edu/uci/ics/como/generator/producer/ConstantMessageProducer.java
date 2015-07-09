@@ -13,7 +13,7 @@ public class ConstantMessageProducer extends AbstractMessageProducer {
 	@Override
 	public void init() throws LifecycleException {
 		super.init();
-		this.message = createCoMoMessage(getConfig().getString("msg"));
+		this.message = createCOMETMessage(getConfig().getString("msg"));
 	}
 
 	@Override

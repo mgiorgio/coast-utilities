@@ -14,8 +14,8 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.components.serializer.CoMonSerializer;
-import edu.uci.ics.como.components.serializer.JSONCoMonSerializer;
+import edu.uci.ics.como.components.serializer.COMETSerializer;
+import edu.uci.ics.como.components.serializer.JSONCOMETSerializer;
 import edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter;
 import edu.uci.ics.como.generator.config.Config;
 import edu.uci.ics.como.protocol.COMETMessage;
@@ -27,7 +27,7 @@ public class GeneratorTest {
 	private static final int DELIVERY_TIMEOUT = 500;
 	private static final String SOURCE_ID = "test" + String.valueOf(System.currentTimeMillis());
 
-	private CoMonSerializer serializer = new JSONCoMonSerializer();
+	private COMETSerializer serializer = new JSONCOMETSerializer();
 
 	@Test
 	public void testGenerator() throws IOException, ShutdownSignalException, ConsumerCancelledException, InterruptedException, LifecycleException {

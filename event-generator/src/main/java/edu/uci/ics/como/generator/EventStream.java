@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.generator.adapter.COASTAdapter;
+import edu.uci.ics.como.generator.adapter.EventStreamAdapter;
 import edu.uci.ics.como.generator.producer.IncreasingMessageProducer;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.FixedRate;
@@ -19,7 +19,7 @@ public class EventStream implements Runnable {
 
 	private static final Logger console = LoggerFactory.getLogger("console");
 
-	private COASTAdapter adapter;
+	private EventStreamAdapter adapter;
 
 	public EventStream(HierarchicalConfiguration config) {
 		this.config = config;
@@ -30,7 +30,7 @@ public class EventStream implements Runnable {
 
 		try {
 			try {
-				adapter = createCoastAdapter();
+				adapter = createAdapter();
 			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 				throw new LifecycleException(e);
 			}
@@ -50,43 +50,26 @@ public class EventStream implements Runnable {
 	}
 
 	private Rate getRatePolicy() throws LifecycleException {
-		Rate rate = createInstance(Rate.class, getConfig(), "rate.class", FixedRate.class);
+		Rate rate = EventGenerator.createInstance(Rate.class, getConfig(), "rate.class", FixedRate.class);
 		rate.setConfig(getConfig().configurationAt("rate"));
 		rate.init();
 		return rate;
 	}
 
 	private MessageProducer getMessageProducer() throws LifecycleException {
-		MessageProducer producer = createInstance(MessageProducer.class, getConfig(), "producer.class", IncreasingMessageProducer.class);
+		MessageProducer producer = EventGenerator.createInstance(MessageProducer.class, getConfig(), "producer.class", IncreasingMessageProducer.class);
 		producer.setConfig(getConfig().configurationAt("producer"));
 		producer.init();
 		return producer;
 	}
 
-	private static <T> T createInstance(Class<T> clazz, HierarchicalConfiguration config, String key, Class<? extends T> defaultClass) {
-		String classname = null;
-		try {
-			classname = config.getString(key);
-			@SuppressWarnings("unchecked")
-			Class<T> loadClass = (Class<T>) ClassLoader.getSystemClassLoader().loadClass(classname);
-			return loadClass.newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			console.warn("{} could not be created. Using default {}", classname, defaultClass.getName());
-			try {
-				return defaultClass.newInstance();
-			} catch (InstantiationException | IllegalAccessException e1) {
-				throw new RuntimeException("Unexpected classpath problem. " + defaultClass.getName() + " could not be found.");
-			}
-		}
-	}
-
-	private COASTAdapter createCoastAdapter() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	private EventStreamAdapter createAdapter() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		String classname = getConfig().getString("transport.class");
 
 		@SuppressWarnings("unchecked")
-		Class<COASTAdapter> loadClass = (Class<COASTAdapter>) ClassLoader.getSystemClassLoader().loadClass(classname);
+		Class<EventStreamAdapter> loadClass = (Class<EventStreamAdapter>) ClassLoader.getSystemClassLoader().loadClass(classname);
 
-		COASTAdapter coastAdapter = loadClass.newInstance();
+		EventStreamAdapter coastAdapter = loadClass.newInstance();
 
 		coastAdapter.setConfig(getConfig());
 

@@ -4,7 +4,6 @@
 package edu.uci.ics.como.generator.adapter.dweetio;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -14,9 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.generator.adapter.COASTAdapter;
-import edu.uci.ics.como.generator.producer.MessageProducer;
-import edu.uci.ics.como.generator.rates.Rate;
+import edu.uci.ics.como.generator.adapter.AbstractAdapter;
 import edu.uci.ics.como.protocol.COMETMessage;
 import edu.uci.ics.como.protocol.COMETMessageBuilder.COMETLegacyFields;
 
@@ -24,9 +21,7 @@ import edu.uci.ics.como.protocol.COMETMessageBuilder.COMETLegacyFields;
  * @author matias
  * 
  */
-public class DweetIOCoastAdapter extends COASTAdapter {
-
-	private static final int TIME_SLOT = 1000;
+public class DweetIOCoastAdapter extends AbstractAdapter {
 
 	private final String URL_preffix = "https://dweet.io/dweet/for/";
 
@@ -40,8 +35,9 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	public DweetIOCoastAdapter() {
 	}
 
-	private void doSend(String measurement) throws ClientProtocolException, IOException {
-		String url = formatURL("data", measurement);
+	@Override
+	protected void doSend(COMETMessage message) throws ClientProtocolException, IOException {
+		String url = formatURL("data", getMessageValue(message));
 		console.info(url);
 		HttpGet request = new HttpGet(url);
 		httpClient.execute(request);
@@ -98,35 +94,7 @@ public class DweetIOCoastAdapter extends COASTAdapter {
 	 */
 	@Override
 	public void sendOnce(COMETMessage message) throws IOException {
-		doSend(getMessageValue(message));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * edu.uci.ics.comon.generator.adapter.COASTAdapter#sendWithRate(java.lang
-	 * .String, edu.uci.ics.comon.generator.producer.MessageProducer,
-	 * edu.uci.ics.comon.generator.rates.Rate)
-	 */
-	@Override
-	public void sendWithRate(MessageProducer producer, Rate rate) throws IOException {
-		while (true) {
-			long before = System.nanoTime();
-			for (int i = 0; i < rate.howMany(); i++) {
-				COMETMessage message = producer.produce();
-				doSend(getMessageValue(message));
-			}
-			long after = System.nanoTime();
-			try {
-				long sleepTime = TimeUnit.NANOSECONDS.toMillis(after - before);
-				if (sleepTime < TIME_SLOT) {
-					Thread.sleep(TIME_SLOT - sleepTime);
-				}
-			} catch (InterruptedException e) {
-				System.err.println(e.getMessage());
-			}
-		}
+		doSend(message);
 	}
 
 	@SuppressWarnings("deprecation")

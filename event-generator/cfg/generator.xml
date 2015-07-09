@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <config>
-	<eventstreams>
+	<eventstreams execution="parallel">
+
+		<!-- 1 -->
+
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.amqp.AMQPCoastAdapter
+				</class>
 				<queue>coast</queue>
 				<host>peru.local</host>
 				<port>5672</port>
@@ -12,20 +16,91 @@
 				<password>Hi123</password>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.ConstantMessageProducer</class>
-				<msg>100</msg>
-				<source>Sensor1</source>
+				<class>edu.uci.ics.comet.generator.producer.DynamicMessageProducer
+				</class>
 				<event>
-					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<source-island>alice</source-island>
+					<source-islet>x</source-islet>
+					<type>curl-new</type>
+					<version>0.1</version>
+					<time>${var:timestamp}</time>
+					<place>inter</place>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer
-				</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
-				<value>1</value>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
+				<amount>1</amount>
+				<total>1</total>
 			</rate>
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			</serializer>
 		</eventstream>
+
+		<!-- 2 -->
+
+		<eventstream>
+			<transport>
+				<class>edu.uci.ics.comet.generator.adapter.amqp.AMQPCoastAdapter
+				</class>
+				<queue>coast</queue>
+				<host>peru.local</host>
+				<port>5672</port>
+				<username>coastdev</username>
+				<password>Hi123</password>
+			</transport>
+			<producer>
+				<class>edu.uci.ics.comet.generator.producer.DynamicMessageProducer
+				</class>
+				<event>
+					<source-island>bob</source-island>
+					<source-islet>y</source-islet>
+					<type>curl-new</type>
+					<version>0.1</version>
+					<time>${var:timestamp}</time>
+					<place>inter</place>
+				</event>
+			</producer>
+			<rate>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
+				<amount>1</amount>
+				<total>1</total>
+			</rate>
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			</serializer>
+		</eventstream>
+
+		<!-- 3 -->
+
+		<eventstream>
+			<transport>
+				<class>edu.uci.ics.comet.generator.adapter.amqp.AMQPCoastAdapter
+				</class>
+				<queue>coast</queue>
+				<host>peru.local</host>
+				<port>5672</port>
+				<username>coastdev</username>
+				<password>Hi123</password>
+			</transport>
+			<producer>
+				<class>edu.uci.ics.comet.generator.producer.DynamicMessageProducer
+				</class>
+				<event>
+					<source-island>alice</source-island>
+					<source-islet>x</source-islet>
+					<type>curl-send</type>
+					<version>0.1</version>
+					<time>${var:timestamp}</time>
+					<place>inter</place>
+				</event>
+			</producer>
+			<rate>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
+				<amount>1</amount>
+				<total>5</total>
+			</rate>
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			</serializer>
+		</eventstream>
+
 	</eventstreams>
 </config>

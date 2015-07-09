@@ -12,7 +12,6 @@ public class Config {
 
 	public static XMLConfiguration get() {
 		if (config == null) {
-
 			try {
 				config = new XMLConfiguration(Config.getConfigurationPath());
 

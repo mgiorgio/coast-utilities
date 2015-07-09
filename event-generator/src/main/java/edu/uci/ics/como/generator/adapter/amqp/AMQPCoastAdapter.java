@@ -1,7 +1,6 @@
 package edu.uci.ics.como.generator.adapter.amqp;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import edu.uci.ics.como.components.LifecycleException;
-import edu.uci.ics.como.generator.adapter.COASTAdapter;
+import edu.uci.ics.como.generator.adapter.AbstractAdapter;
 import edu.uci.ics.como.generator.producer.MessageProducer;
 import edu.uci.ics.como.generator.rates.Rate;
 import edu.uci.ics.como.protocol.COMETMessage;
@@ -24,7 +23,7 @@ import edu.uci.ics.como.protocol.COMETMessage;
  * @author matias
  * 
  */
-public class AMQPCoastAdapter extends COASTAdapter {
+public class AMQPCoastAdapter extends AbstractAdapter {
 
 	private Connection connection;
 	private Channel channel;
@@ -39,7 +38,6 @@ public class AMQPCoastAdapter extends COASTAdapter {
 
 	@Override
 	public void start() throws LifecycleException {
-		console.info("Starting Generator...");
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(getConfig().getString("transport.host", "localhost"));
 		factory.setPort(getConfig().getInt("transport.port", ConnectionFactory.DEFAULT_AMQP_PORT));
@@ -62,25 +60,12 @@ public class AMQPCoastAdapter extends COASTAdapter {
 	}
 
 	@Override
-	public void sendWithRate(MessageProducer producer, Rate rate) throws IOException {
-		while (true) {
-			long before = System.nanoTime();
-			for (int i = 0; i < rate.howMany(); i++) {
-				COMETMessage message = producer.produce();
-				this.channel.basicPublish("", getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
-			}
-			long after = System.nanoTime();
-			try {
-				Thread.sleep(Math.max(0, 1000 - TimeUnit.NANOSECONDS.toMillis(after - before)));
-			} catch (InterruptedException e) {
-				System.err.println(e.getMessage());
-			}
-		}
+	protected void doSend(COMETMessage message) throws IOException {
+		this.channel.basicPublish("", getConfig().getString("transport.queue"), null, this.getSerializer().serialize(message));
 	}
 
 	@Override
 	public void stop() throws LifecycleException {
-		console.info("Stopping Generator...");
 		try {
 			if (channel != null) {
 				channel.close();

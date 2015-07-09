@@ -1,5 +1,7 @@
 package edu.uci.ics.como.generator.producer;
 
+import java.util.Map;
+
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 import edu.uci.ics.como.components.LifecycleException;
@@ -10,7 +12,7 @@ public abstract class AbstractMessageProducer implements MessageProducer {
 
 	private HierarchicalConfiguration config;
 
-	protected COMETMessage createCoMoMessage(String value) {
+	protected COMETMessage createCOMETMessage(String value) {
 		COMETMessageBuilder builder = new COMETMessageBuilder();
 		builder.setEventType(getConfig().getString("event.type"));
 		builder.setSourceID(getConfig().getString("source"));
@@ -19,6 +21,12 @@ public abstract class AbstractMessageProducer implements MessageProducer {
 		builder.setTime(System.currentTimeMillis());
 
 		return builder.build();
+	}
+
+	protected COMETMessage createCOMETMessage(Map<String, Object> fields) {
+		COMETMessage message = new COMETMessage(fields);
+
+		return message;
 	}
 
 	public HierarchicalConfiguration getConfig() {

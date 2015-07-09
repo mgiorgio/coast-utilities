@@ -20,7 +20,7 @@ public class IncreasingMessageProducer extends AbstractMessageProducer {
 
 	@Override
 	public COMETMessage produce() {
-		return this.createCoMoMessage(new StringBuilder().append(prefix).append(start++).toString());
+		return this.createCOMETMessage(new StringBuilder().append(prefix).append(start++).toString());
 	}
 
 }

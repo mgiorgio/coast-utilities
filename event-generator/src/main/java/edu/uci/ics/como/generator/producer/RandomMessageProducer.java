@@ -41,6 +41,6 @@ public class RandomMessageProducer extends AbstractMessageProducer {
 	 */
 	@Override
 	public COMETMessage produce() {
-		return this.createCoMoMessage(String.valueOf(random.nextInt(max - min + 1) + min));
+		return this.createCOMETMessage(String.valueOf(random.nextInt(max - min + 1) + min));
 	}
 }

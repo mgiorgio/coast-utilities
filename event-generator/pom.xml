@@ -4,8 +4,8 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>edu.uci.ics.como</groupId>
-        <artifactId>como-utilities</artifactId>
+        <groupId>edu.uci.ics.comet</groupId>
+        <artifactId>comet-utilities</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>event-generator</artifactId>
@@ -31,7 +31,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>edu.uci.ics.como.generator.EventGenerator</mainClass>
+              <mainClass>edu.uci.ics.comet.generator.EventGenerator</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -95,13 +95,13 @@
 			<version>4.3.3</version>
 		</dependency>
 		<dependency>
-			<groupId>edu.uci.ics.como</groupId>
-			<artifactId>como-components</artifactId>
+			<groupId>edu.uci.ics.comet</groupId>
+			<artifactId>comet-components</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>edu.uci.ics.como</groupId>
-			<artifactId>como-protocol</artifactId>
+			<groupId>edu.uci.ics.comet</groupId>
+			<artifactId>comet-protocol</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

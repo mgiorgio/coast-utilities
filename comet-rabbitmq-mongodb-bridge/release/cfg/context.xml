@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<camel:camelContext id="camel-client">
+		<!-- <routes xmlns="http://camel.apache.org/schema/spring"> -->
+		<camel:route id="rabbit-to-mongo">
+			<camel:from uri="rabbitmq" />
+			<camel:unmarshal ref="gson" />
+			<camel:process ref="addIdProcessor" />
+			<camel:to
+				uri="mongodb:mongoConnection?database=coast&amp;collection=events&amp;operation=insert" />
+		</camel:route>
+		<!-- </routes> -->
+	</camel:camelContext>
+
+	<bean id="addIdProcessor" class="edu.uci.ics.comet.rabbitmqmongodbbridge.AddIDProcessor">
+	</bean>
+
+	<bean id="gson" class="org.apache.camel.component.gson.GsonDataFormat">
+	</bean>
+
+	<bean id="mongoConnection" class="com.mongodb.Mongo">
+		<constructor-arg name="host" value="peru.local" />
+		<constructor-arg name="port" value="27017" />
+	</bean>
+
+	<!-- <bean id="mongodb" class="org.apache.camel.component.mongodb.MongoDbEndpoint"> -->
+	<!-- <property name="connectionBean" value="mongoConnection" /> -->
+	<!-- <property name="database" value="coast" /> -->
+	<!-- <property name="collection" value="events" /> -->
+	<!-- <property name="operation" value="insert" /> -->
+	<!-- </bean> -->
+
+	<bean id="rabbitmq" class="org.apache.camel.component.rabbitmq.RabbitMQEndpoint">
+		<property name="connectionFactory">
+			<bean id="rabbitMQFactory" class="com.rabbitmq.client.ConnectionFactory">
+				<property name="host" value="peru.local" />
+				<property name="port" value="5672" />
+				<property name="username" value="coastdev" />
+				<property name="password" value="Hi123" />
+			</bean>
+		</property>
+		<property name="exchangeName" value="coastex" />
+		<property name="queue" value="coast" />
+		<property name="autoDelete" value="false" />
+	</bean>
+</beans>

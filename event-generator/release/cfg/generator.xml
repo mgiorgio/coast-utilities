@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <config>
-<!-- 	<transport class="edu.uci.ics.como.generator.adapter.amqp.AMQPCoastAdapter"> -->
+<!-- 	<transport class="edu.uci.ics.comet.generator.adapter.amqp.AMQPCoastAdapter"> -->
 <!-- 		<exchange>events</exchange> -->
 <!-- 		<host>localhost</host> -->
 <!-- 		<port></port> -->
@@ -9,102 +9,102 @@
 	<eventstreams>
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.dweetio.DweetIOCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.dweetio.DweetIOCoastAdapter</class>
 				<id>UciUbicompSensor1</id>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.ConstantMessageProducer</class>
+				<class>edu.uci.ics.comet.generator.producer.ConstantMessageProducer</class>
 				<msg>100</msg>
 				<source>Sensor1</source>
 				<event>
 					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
 				<value>1</value>
 			</rate>
 		</eventstream>
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.dweetio.DweetIOCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.dweetio.DweetIOCoastAdapter</class>
 				<id>UciUbicompSensor2</id>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.ConstantMessageProducer</class>
+				<class>edu.uci.ics.comet.generator.producer.ConstantMessageProducer</class>
 				<msg>100</msg>
 				<source>Sensor3</source>
 				<event>
 					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
 				<value>1</value>
 			</rate>
 		</eventstream>
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.dweetio.DweetIOCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.dweetio.DweetIOCoastAdapter</class>
 				<id>UciUbicompSensor2</id>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.ConstantMessageProducer</class>
+				<class>edu.uci.ics.comet.generator.producer.ConstantMessageProducer</class>
 				<msg>100</msg>
 				<source>Sensor3</source>
 				<event>
 					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
 				<value>1</value>
 			</rate>
 		</eventstream>
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.dweetio.DweetIOCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.dweetio.DweetIOCoastAdapter</class>
 				<id>UciUbicompSensor4</id>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.ConstantMessageProducer</class>
+				<class>edu.uci.ics.comet.generator.producer.ConstantMessageProducer</class>
 				<msg>100</msg>
 				<source>Sensor4</source>
 				<event>
 					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
 				<value>1</value>
 			</rate>
 		</eventstream>
 		<eventstream>
 			<transport>
-				<class>edu.uci.ics.como.generator.adapter.dweetio.DweetIOCoastAdapter</class>
+				<class>edu.uci.ics.comet.generator.adapter.dweetio.DweetIOCoastAdapter</class>
 				<id>UciUbicompSensor5</id>
 			</transport>
 			<producer>
-				<class>edu.uci.ics.como.generator.producer.IncreasingMessageProducer</class>
+				<class>edu.uci.ics.comet.generator.producer.IncreasingMessageProducer</class>
 				<prefix></prefix>
 				<start>100</start>
 				<source>Sensor5</source>
 				<event>
 					<type>water</type>
-					<protocol>como-0.1</protocol>
+					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.como.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
 			</producer>
 			<rate>
-				<class>edu.uci.ics.como.generator.rates.FixedRate</class>
+				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
 				<value>1</value>
 			</rate>
 		</eventstream>

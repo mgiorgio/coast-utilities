@@ -24,7 +24,7 @@ public class RandomRate extends AbstractRate {
 	}
 
 	@Override
-	public int howMany() {
+	public int amount() {
 		return random.nextInt(max - min + 1) + min;
 	}
 
