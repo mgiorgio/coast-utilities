@@ -20,7 +20,7 @@
 					<type>water</type>
 					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer</serializer>
 			</producer>
 			<rate>
 				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
@@ -40,7 +40,7 @@
 					<type>water</type>
 					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer</serializer>
 			</producer>
 			<rate>
 				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
@@ -60,7 +60,7 @@
 					<type>water</type>
 					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer</serializer>
 			</producer>
 			<rate>
 				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
@@ -80,7 +80,7 @@
 					<type>water</type>
 					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer</serializer>
 			</producer>
 			<rate>
 				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>
@@ -101,7 +101,7 @@
 					<type>water</type>
 					<protocol>comet-0.1</protocol>
 				</event>
-				<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer</serializer>
+				<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer</serializer>
 			</producer>
 			<rate>
 				<class>edu.uci.ics.comet.generator.rates.FixedRate</class>

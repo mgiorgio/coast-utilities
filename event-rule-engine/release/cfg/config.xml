@@ -3,36 +3,36 @@
 <config>
 	<inputstreams>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.DweetIOInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.DweetIOInputStream</class>
 			<id>UciUbicompSensor1</id>
 		</stream>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.DweetIOInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.DweetIOInputStream</class>
 			<id>UciUbicompSensor2</id>
 		</stream>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.DweetIOInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.DweetIOInputStream</class>
 			<id>UciUbicompSensor3</id>
 		</stream>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.DweetIOInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.DweetIOInputStream</class>
 			<id>UciUbicompSensor4</id>
 		</stream>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.DweetIOInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.DweetIOInputStream</class>
 			<id>UciUbicompSensor5</id>
 		</stream>
 	</inputstreams>
 	<rules>
 		<rule>
 			<predicate>
-				<class>edu.uci.ics.como.eventprocessor.rules.predicates.MinDistancePredicate</class>
+				<class>edu.uci.ics.comet.eventprocessor.rules.predicates.MinDistancePredicate</class>
 				<key1>avg</key1>
 				<key2>raw.UciUbicompSensor5</key2>
 				<threshold>5</threshold>
 			</predicate>
 			<action>
-				<class>edu.uci.ics.como.eventprocessor.rules.actions.MailAction</class>
+				<class>edu.uci.ics.comet.eventprocessor.rules.actions.MailAction</class>
 				<to>4155288582@tmomail.net</to>
 				<from>mgiorgio@uci.edu</from>
 				<password></password>

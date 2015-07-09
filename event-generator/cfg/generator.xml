@@ -32,7 +32,7 @@
 				<amount>1</amount>
 				<total>1</total>
 			</rate>
-			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer
 			</serializer>
 		</eventstream>
 
@@ -65,7 +65,7 @@
 				<amount>1</amount>
 				<total>1</total>
 			</rate>
-			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer
 			</serializer>
 		</eventstream>
 
@@ -98,7 +98,7 @@
 				<amount>1</amount>
 				<total>5</total>
 			</rate>
-			<serializer>edu.uci.ics.comet.generator.serializer.JSONCoMonSerializer
+			<serializer>edu.uci.ics.comet.generator.serializer.JSONCOMETSerializer
 			</serializer>
 		</eventstream>
 

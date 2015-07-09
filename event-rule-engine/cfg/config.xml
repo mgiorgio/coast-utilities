@@ -3,7 +3,7 @@
 <config>
 	<inputstreams>
 		<stream>
-			<class>edu.uci.ics.como.eventprocessor.input.RabbitMQInputStream</class>
+			<class>edu.uci.ics.comet.eventprocessor.input.RabbitMQInputStream</class>
 			<host>peru.local</host>
 			<port>5672</port>
 			<login>coastdev</login>
@@ -16,10 +16,10 @@
 	<rules>
 		<rule>
 			<predicate>
-				<class>edu.uci.ics.como.eventprocessor.rules.predicates.TruePredicate</class>
+				<class>edu.uci.ics.comet.eventprocessor.rules.predicates.TruePredicate</class>
 			</predicate>
 			<action>
-				<class>edu.uci.ics.como.eventprocessor.rules.actions.DumpSample</class>
+				<class>edu.uci.ics.comet.eventprocessor.rules.actions.DumpSample</class>
 			</action>
 		</rule>
 	</rules>
