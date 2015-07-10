@@ -17,12 +17,12 @@ public class COMETEvent {
 		fields.putAll(fields);
 	}
 
-	public void put(String key, String value) {
+	public COMETEvent put(String key, String value) {
 		fields.put(key, value);
+		return this;
 	}
 
 	public Map<String, Object> getFields() {
 		return Collections.unmodifiableMap(fields);
 	}
-
 }

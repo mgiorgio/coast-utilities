@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+
 /**
  * @author Matias Giorgio
  *
@@ -28,12 +30,30 @@ public abstract class Evaluation {
 		nestedEvaluations = new LinkedList<Evaluation>();
 	}
 
+	/**
+	 * Configures the {@link Evaluation} object.
+	 * 
+	 * @param conf
+	 *            The {@link Evaluation}'s associated configuration.
+	 */
+	public void configure(Configuration conf) {
+		configureSeverity(conf);
+	}
+
+	private void configureSeverity(Configuration conf) {
+		EvaluationResult severity = Evaluations.fromName(conf.getString("severity", EvaluationResult.FAILED.getName()));
+		if (severity == null) {
+			throw new IllegalArgumentException("Severity declared for " + this + " is invalid.");
+		}
+		this.setSeverity(severity);
+	}
+
 	public void addNestedEvaluation(Evaluation evaluation) {
 		this.nestedEvaluations.add(evaluation);
 	}
 
 	public List<Evaluation> getNestedEvaluations() {
-		return (List<Evaluation>) Collections.unmodifiableCollection(nestedEvaluations);
+		return Collections.unmodifiableList(nestedEvaluations);
 	}
 
 	public EvaluationResult getSeverity() {

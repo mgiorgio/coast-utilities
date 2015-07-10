@@ -41,12 +41,26 @@ public class MongoQueryHandler implements QueryHandler {
 		this.properties = properties;
 	}
 
+	public static enum MongoProperties {
+		MONGO_HOST("mongo-host"), MONGO_PORT("mongo-port"), MONGO_DB("mongo-db"), MONGO_COLLECTION("mongo-collection");
+
+		private String propertyName;
+
+		private MongoProperties(String propertyName) {
+			this.propertyName = propertyName;
+		}
+
+		public String getPropertyName() {
+			return this.propertyName;
+		}
+	}
+
 	public void init() {
-		client = new MongoClient((String) properties.get("mongo-host"), (Integer) properties.get("mongo-port"));
+		client = new MongoClient((String) properties.get(MongoProperties.MONGO_HOST.getPropertyName()), (Integer) properties.get(MongoProperties.MONGO_PORT.getPropertyName()));
 
-		database = client.getDatabase((String) properties.get("mongo-db"));
+		database = client.getDatabase((String) properties.get(MongoProperties.MONGO_DB.getPropertyName()));
 
-		collection = database.getCollection((String) properties.get("mongo-collection"));
+		collection = database.getCollection((String) properties.get(MongoProperties.MONGO_COLLECTION.getPropertyName()));
 	}
 
 	public void shutdown() {

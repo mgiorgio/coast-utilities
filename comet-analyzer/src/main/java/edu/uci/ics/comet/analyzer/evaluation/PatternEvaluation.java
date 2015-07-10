@@ -7,9 +7,9 @@ import java.util.Iterator;
 
 import edu.uci.ics.comet.analyzer.config.ConfigReader;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
+import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.QueryResult;
-import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
 import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
 
 /**
@@ -58,7 +58,7 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 		return EvaluationResult.PASS;
 	}
 
-	private QueryHandler getQueryHandler() {
+	protected QueryHandler getQueryHandler() {
 		QueryHandler queryHandler = new MongoQueryHandler(ConfigReader.globals());
 		return queryHandler;
 	}

@@ -41,7 +41,7 @@ public abstract class AbstractAdapter implements EventStreamAdapter {
 	}
 
 	private COMETSerializer createSerializer() {
-		String serializationMethod = Config.get().getString("serializer");
+		String serializationMethod = getConfig().getString("serializer");
 
 		if (serializationMethod == null) {
 			log.warn("Serialization method was not defined. Using default {}", JSONCOMETSerializer.class.getName());

@@ -27,7 +27,8 @@ public class And extends Evaluation {
 			EvaluationResult nestedResult = eval.evaluate();
 
 			if (nestedResult.equals(EvaluationResult.ERROR)) {
-				result = EvaluationResult.ERROR;
+				this.setResult(EvaluationResult.ERROR);
+				return this.getResult();
 			} else if (nestedResult.equals(EvaluationResult.FAILED) && !result.equals(EvaluationResult.ERROR)) {
 				result = EvaluationResult.FAILED;
 			} else if (nestedResult.equals(EvaluationResult.WARNING) && !result.equals(EvaluationResult.ERROR) && !result.equals(EvaluationResult.FAILED)) {

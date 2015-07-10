@@ -27,7 +27,8 @@ public class Or extends Evaluation {
 			EvaluationResult nestedResult = eval.evaluate();
 
 			if (nestedResult.equals(EvaluationResult.PASS)) {
-				result = EvaluationResult.PASS;
+				this.setResult(EvaluationResult.PASS);
+				return this.getResult();
 			} else if (nestedResult.equals(EvaluationResult.WARNING) && !result.equals(EvaluationResult.PASS)) {
 				result = EvaluationResult.WARNING;
 			} else if (nestedResult.equals(EvaluationResult.FAILED) && !result.equals(EvaluationResult.WARNING)) {

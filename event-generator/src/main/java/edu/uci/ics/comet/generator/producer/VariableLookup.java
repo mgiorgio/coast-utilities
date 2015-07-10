@@ -11,6 +11,7 @@ public class VariableLookup extends StrLookup {
 
 	static {
 		replacers.put("timestamp", new TimestampProvider());
+		replacers.put("inc", new IncrementalProvider());
 	}
 
 	@Override
@@ -31,6 +32,16 @@ public class VariableLookup extends StrLookup {
 		@Override
 		public String value() {
 			return String.valueOf(System.currentTimeMillis());
+		}
+	}
+
+	public static class IncrementalProvider implements ValueProvider {
+
+		private long next = 1;
+
+		@Override
+		public String value() {
+			return String.valueOf(next++);
 		}
 	}
 }

@@ -22,8 +22,16 @@ public class EventQuery {
 	 *            Keys and values of the initial query members.
 	 */
 	public EventQuery(Map<String, Object> fields) {
+		this();
 		for (Entry<String, Object> field : fields.entrySet()) {
 			addQueryMember(field.getKey(), field.getValue(), QueryOperation.EQ);
+		}
+	}
+
+	public EventQuery(QueryMember... members) {
+		this();
+		for (QueryMember member : members) {
+			this.addQueryMember(member);
 		}
 	}
 
@@ -34,8 +42,19 @@ public class EventQuery {
 	 * @param value
 	 * @param operation
 	 */
+	public void addQueryMember(QueryMember member) {
+		queryMembers.add(member);
+	}
+
+	/**
+	 * Adds a {@link QueryMember} to this {@link EventQuery}.
+	 * 
+	 * @param key
+	 * @param value
+	 * @param operation
+	 */
 	public void addQueryMember(String key, Object value, QueryOperation operation) {
-		queryMembers.add(new QueryMember(key, value, operation));
+		this.addQueryMember(new QueryMember(key, value, operation));
 	}
 
 	/**

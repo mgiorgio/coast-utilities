@@ -27,4 +27,8 @@ public class MongoQueryResult implements QueryResult {
 		return document.getLong(key);
 	}
 
+	@Override
+	public String toString() {
+		return document.toString();
+	}
 }
