@@ -5,12 +5,10 @@ package edu.uci.ics.comet.analyzer.evaluation;
 
 import java.util.Iterator;
 
-import edu.uci.ics.comet.analyzer.config.ConfigReader;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.QueryResult;
-import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
 
 /**
  * @author matias
@@ -56,10 +54,5 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 		}
 
 		return EvaluationResult.PASS;
-	}
-
-	protected QueryHandler getQueryHandler() {
-		QueryHandler queryHandler = new MongoQueryHandler(ConfigReader.globals());
-		return queryHandler;
 	}
 }

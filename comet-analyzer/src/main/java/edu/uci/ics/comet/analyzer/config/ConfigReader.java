@@ -18,6 +18,7 @@ import edu.uci.ics.comet.analyzer.evaluation.And;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationResult;
+import edu.uci.ics.comet.analyzer.evaluation.Evaluations;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
@@ -136,7 +137,8 @@ public class ConfigReader {
 		TimeUnit timeUnit = getTimeUnit(volume.getAttributeValue("unit"));
 
 		VolumeEvaluation eval = new VolumeEvaluation(timerange, timeUnit, minRange, maxRange);
-		eval.setSeverity(getSeverity(volume.getAttributeValue("severity")));
+
+		configureSeverity(volume, eval);
 
 		for (Element event : volume.getChildren()) {
 			Map<String, Object> fields = new HashMap<String, Object>();
@@ -162,7 +164,8 @@ public class ConfigReader {
 
 	private static Evaluation createPattern(Element pattern) {
 		PatternEvaluation eval = new PatternEvaluation();
-		eval.setSeverity(getSeverity(pattern.getAttributeValue("severity")));
+
+		configureSeverity(pattern, eval);
 
 		for (Element event : pattern.getChildren()) {
 			Map<String, Object> fields = new HashMap<String, Object>();
@@ -174,14 +177,13 @@ public class ConfigReader {
 		return eval;
 	}
 
-	private static EvaluationResult getSeverity(String value) {
-		if (value == null || "fail".equalsIgnoreCase(value)) {
-			return EvaluationResult.FAILED;
-		} else if ("warning".equalsIgnoreCase(value)) {
-			return EvaluationResult.WARNING;
+	private static void configureSeverity(Element pattern, Evaluation eval) {
+		EvaluationResult severity = Evaluations.toEvaluationResult(pattern.getAttributeValue("severity", EvaluationResult.FAILED.getName()));
+		if (severity == null) {
+			throw new IllegalArgumentException("Severity declared for " + pattern.getName() + " is invalid.");
 		}
 
-		return EvaluationResult.FAILED;
+		eval.setConfiguredSeverity(severity);
 	}
 
 	private static void readGlobals() {

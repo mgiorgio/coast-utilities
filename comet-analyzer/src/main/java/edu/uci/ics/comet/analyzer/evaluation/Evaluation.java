@@ -9,19 +9,23 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 
+import edu.uci.ics.comet.analyzer.query.QueryHandler;
+
 /**
  * @author Matias Giorgio
  *
  */
 public abstract class Evaluation {
 
+	private QueryHandler queryHandler;
+
 	private List<Evaluation> nestedEvaluations;
 
-	private String message;
+	private String messageIfUnexpected;
 
 	private EvaluationResult result;
 
-	private EvaluationResult severity;
+	private EvaluationResult configuredSeverity;
 
 	/**
 	 * 
@@ -31,21 +35,17 @@ public abstract class Evaluation {
 	}
 
 	/**
-	 * Configures the {@link Evaluation} object.
-	 * 
 	 * @param conf
-	 *            The {@link Evaluation}'s associated configuration.
+	 * @throws IllegalArgumentException
+	 *             if the configuredSeverity string does not represent an actual
+	 *             configuredSeverity.
 	 */
-	public void configure(Configuration conf) {
-		configureSeverity(conf);
-	}
-
 	private void configureSeverity(Configuration conf) {
-		EvaluationResult severity = Evaluations.fromName(conf.getString("severity", EvaluationResult.FAILED.getName()));
+		EvaluationResult severity = Evaluations.toEvaluationResult(conf.getString("configuredSeverity", EvaluationResult.FAILED.getName()));
 		if (severity == null) {
 			throw new IllegalArgumentException("Severity declared for " + this + " is invalid.");
 		}
-		this.setSeverity(severity);
+		this.setConfiguredSeverity(severity);
 	}
 
 	public void addNestedEvaluation(Evaluation evaluation) {
@@ -56,23 +56,23 @@ public abstract class Evaluation {
 		return Collections.unmodifiableList(nestedEvaluations);
 	}
 
-	public EvaluationResult getSeverity() {
-		return severity;
+	public EvaluationResult getConfiguredSeverity() {
+		return configuredSeverity;
 	}
 
-	public void setSeverity(EvaluationResult severity) {
-		this.severity = severity;
+	public void setConfiguredSeverity(EvaluationResult severity) {
+		this.configuredSeverity = severity;
 	}
 
-	public String getMessage() {
-		return message;
+	public String getMessageIfUnexpected() {
+		return messageIfUnexpected;
 	}
 
 	public EvaluationResult getResult() {
 		return result;
 	}
 
-	protected void setResult(EvaluationResult result) {
+	private void setResult(EvaluationResult result) {
 		this.result = result;
 	}
 
@@ -88,11 +88,30 @@ public abstract class Evaluation {
 
 	public EvaluationResult evaluate() {
 		try {
-			return this.doTheEvaluation();
+			EvaluationResult result = this.doTheEvaluation();
+			this.setResult(adaptResultIfItIsUnexpected(result));
 		} catch (Exception e) {
 			// TODO Wrap Exception somehow so it can be accessed later.
-			return EvaluationResult.ERROR;
+			this.setResult(EvaluationResult.ERROR);
 		}
+		return this.getResult();
+	}
+
+	private EvaluationResult adaptResultIfItIsUnexpected(EvaluationResult result) {
+		if (getConfiguredSeverity() != null && Evaluations.isSeverity(result)) {
+			return getConfiguredSeverity();
+		} else {
+			return result;
+		}
+	}
+
+	public Evaluation setQueryHandler(QueryHandler queryHandler) {
+		this.queryHandler = queryHandler;
+		return this;
+	}
+
+	public QueryHandler getQueryHandler() {
+		return this.queryHandler;
 	}
 
 	protected abstract EvaluationResult doTheEvaluation();

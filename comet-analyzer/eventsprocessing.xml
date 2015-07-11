@@ -26,7 +26,7 @@
 				<place>INTER</place>
 			</event>
 		</pattern>
-		<not>
+		<not onError="warning">
 			<pattern severity="warning">
 				<event>
 					<island>bob</island>

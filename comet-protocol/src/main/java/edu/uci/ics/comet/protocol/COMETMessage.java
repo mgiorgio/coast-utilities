@@ -1,9 +1,8 @@
 package edu.uci.ics.comet.protocol;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class COMETMessage {
 
@@ -26,8 +25,8 @@ public class COMETMessage {
 		return this.fields.get(key);
 	}
 
-	public Set<Entry<String, Object>> entrySet() {
-		return this.fields.entrySet();
+	public Map<String, Object> asMap() {
+		return Collections.unmodifiableMap(fields);
 	}
 
 	@Override

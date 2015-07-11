@@ -1,8 +1,5 @@
 package edu.uci.ics.comet.analyzer.evaluation;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,32 +20,47 @@ public class TestEvaluations extends AbstractMongoTest {
 	public TestEvaluations() {
 	}
 
-	private PatternEvaluation createPatternEval() {
-		PatternEvaluation eval = spy(new PatternEvaluation());
-
-		// Change QueryHandler to the one used for testing.
-		doReturn(getQueryHandler()).when(eval).getQueryHandler();
-
+	private PatternEvaluation newPattern() {
+		PatternEvaluation eval = new PatternEvaluation();
+		eval.setQueryHandler(getQueryHandler());
 		return eval;
 	}
 
-	private void assertEval(Evaluation eval, EvaluationResult expectedResult) {
-		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate());
+	private Not newNot() {
+		Not not = new Not();
+		not.setQueryHandler(getQueryHandler());
+		return not;
 	}
 
-	private void assertEvaluationFails(Evaluation eval) {
-		assertEval(eval, EvaluationResult.FAILED);
+	private Evaluation newAnd() {
+		return new And().setQueryHandler(getQueryHandler());
+	}
+
+	private Evaluation newOr() {
+		return new Or().setQueryHandler(getQueryHandler());
+	}
+
+	private static void assertEval(Evaluation eval, EvaluationResult expectedResult) {
+		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate());
 	}
 
 	private static COMETEvent newEvent() {
 		return new COMETEvent();
 	}
 
-	private void assertEvaluationPasses(Evaluation eval) {
+	private static void assertEvaluationFails(Evaluation eval) {
+		assertEval(eval, EvaluationResult.FAILED);
+	}
+
+	private static void assertEvaluationWarn(Evaluation eval) {
+		assertEval(eval, EvaluationResult.WARNING);
+	}
+
+	private static void assertEvaluationPasses(Evaluation eval) {
 		assertEval(eval, EvaluationResult.PASS);
 	}
 
-	private void assertEvaluationError(Evaluation eval) {
+	private static void assertEvaluationError(Evaluation eval) {
 		assertEval(eval, EvaluationResult.ERROR);
 	}
 
@@ -62,14 +74,14 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testEmptyPattern() {
-		PatternEvaluation eval = createPatternEval();
+		Evaluation eval = newPattern();
 
 		assertEvaluationPasses(eval);
 	}
 
 	@Test
 	public void testOneMatchPassPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
 
@@ -78,7 +90,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiMatchPassPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "alice"));
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
@@ -89,7 +101,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testOneMatchFailPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "carol"));
 
@@ -98,7 +110,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiMatchFailPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
@@ -108,7 +120,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiComplexMatchPassPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
@@ -119,7 +131,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiComplexMatchFailPattern() {
-		PatternEvaluation eval = createPatternEval();
+		PatternEvaluation eval = newPattern();
 
 		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
 		eval.addCOMETEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
@@ -128,10 +140,15 @@ public class TestEvaluations extends AbstractMongoTest {
 		assertEvaluationFails(eval);
 	}
 
-	private static void nestEvals(Evaluation composite, ExpectedEvaluation... evals) {
-		for (ExpectedEvaluation expectedEvaluation : evals) {
-			composite.addNestedEvaluation(expectedEvaluation);
+	private static void nestEvals(Evaluation composite, Evaluation... evals) {
+		for (Evaluation evaluation : evals) {
+			composite.addNestedEvaluation(evaluation);
 		}
+	}
+
+	private static void assertEvalWith(Evaluation composite, EvaluationResult expected, Evaluation... nestedEvals) {
+		nestEvals(composite, nestedEvals);
+		assertEval(composite, expected);
 	}
 
 	/*
@@ -140,29 +157,17 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void whenAllEvalsPassThenANDEvalShouldPass() {
-		And and = new And();
-
-		nestEvals(and, PASS_EVAL, PASS_EVAL);
-
-		assertEvaluationPasses(and);
+		assertEvalWith(newAnd(), EvaluationResult.PASS, PASS_EVAL, PASS_EVAL);
 	}
 
 	@Test
 	public void whenOneEvalFailsAndNoErrorsThenANDEvalShouldFail() {
-		And and = new And();
-
-		nestEvals(and, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
-
-		assertEvaluationFails(and);
+		assertEvalWith(newAnd(), EvaluationResult.FAILED, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
 	}
 
 	@Test
 	public void whenOneErrorThenAndEvalShouldError() {
-		And and = new And();
-
-		nestEvals(and, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
-
-		assertEvaluationError(and);
+		assertEvalWith(newAnd(), EvaluationResult.ERROR, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
 	}
 
 	/*
@@ -170,19 +175,67 @@ public class TestEvaluations extends AbstractMongoTest {
 	 */
 	@Test
 	public void whenAllEvalsPassThenOREvalShouldPass() {
-		Or or = new Or();
-
-		nestEvals(or, PASS_EVAL, PASS_EVAL);
-
-		assertEvaluationPasses(or);
+		assertEvalWith(newOr(), EvaluationResult.PASS, PASS_EVAL, PASS_EVAL);
 	}
 
 	@Test
 	public void whenOneEvalPassesAndNoErrorsThenOREvalShouldFail() {
-		Or or = new Or();
+		assertEvalWith(newOr(), EvaluationResult.PASS, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
+	}
 
-		nestEvals(or, ERROR_EVAL, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
+	/*
+	 * NOT Evaluation
+	 */
+	@Test
+	public void whenMoreThanOneEvalIsNestedToNOTThenItShouldThrowRuntimeException() {
+		try {
+			nestEvals(newNot(), newPattern(), newPattern());
+			Assert.fail("Nesting more than one element should have thrown RuntimeException.");
+		} catch (RuntimeException e) {
+			// Code is OK.
+		}
+	}
 
-		assertEvaluationPasses(or);
+	@Test
+	public void whenPassIsObtainedItShouldBeChangedToFail() {
+		assertEvalWith(newNot(), EvaluationResult.FAILED, PASS_EVAL);
+	}
+
+	@Test
+	public void whenFailIsObtainedItShouldBeChangedToPass() {
+		assertEvalWith(newNot(), EvaluationResult.PASS, FAILED_EVAL);
+	}
+
+	@Test
+	public void whenWarnIsObtainedItShouldBeReturnedAsIs() {
+		assertEvalWith(newNot(), EvaluationResult.WARNING, WARN_EVAL);
+	}
+
+	@Test
+	public void whenErrorOccursAndItIsNotRedefinedThenErrorShouldBeReturned() {
+		assertEvalWith(newNot(), EvaluationResult.ERROR, ERROR_EVAL);
+	}
+
+	@Test
+	public void whenErrorOccursAndItIsRedefinedThenTheConfiguredShouldBeReturned() {
+		// Warning is returned instead of Error.
+		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResult.WARNING), EvaluationResult.WARNING, ERROR_EVAL);
+	}
+
+	/*
+	 * Configured severity.
+	 */
+	@Test
+	public void whenSeverityIsConfiguredThenItShouldReplaceTheNaturalOne() {
+		PatternEvaluation eval = newPattern();
+		/*
+		 * If an unexpected result is obtained, it should be replaced by
+		 * warning.
+		 */
+		eval.setConfiguredSeverity(EvaluationResult.WARNING);
+
+		eval.addCOMETEvent(newEvent().put(ISLAND, "carol"));
+
+		assertEvaluationWarn(eval);
 	}
 }
