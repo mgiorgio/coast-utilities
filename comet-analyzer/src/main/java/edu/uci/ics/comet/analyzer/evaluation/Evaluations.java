@@ -6,16 +6,16 @@ public class Evaluations {
 	}
 
 	/**
-	 * Retrieves a member from the {@link EvaluationResult} enumeration given
+	 * Retrieves a member from the {@link EvaluationResultType} enumeration given
 	 * its representative name.
 	 * 
 	 * @param resultName
-	 *            The {@link EvaluationResult} name used in the configuration.
-	 * @return An {@link EvaluationResult}, or <code>null</code> if the given
-	 *         name does not represent any {@link EvaluationResult}.
+	 *            The {@link EvaluationResultType} name used in the configuration.
+	 * @return An {@link EvaluationResultType}, or <code>null</code> if the given
+	 *         name does not represent any {@link EvaluationResultType}.
 	 */
-	public static EvaluationResult toEvaluationResult(String resultName) {
-		EvaluationResult[] values = EvaluationResult.values();
+	public static EvaluationResultType toEvaluationResult(String resultName) {
+		EvaluationResultType[] values = EvaluationResultType.values();
 		for (int i = 0; i < values.length; i++) {
 			if (values[i].getName().equals(resultName)) {
 				return values[i];
@@ -26,7 +26,7 @@ public class Evaluations {
 	}
 
 	/**
-	 * Checks if an {@link EvaluationResult} corresponds with a severity
+	 * Checks if an {@link EvaluationResultType} corresponds with a severity
 	 * (unexpected result).
 	 * 
 	 * @param result
@@ -34,21 +34,21 @@ public class Evaluations {
 	 * @return <code>true</code> if the result is failed or warning. Otherwise,
 	 *         <code>false</code>.
 	 */
-	public static boolean isSeverity(EvaluationResult result) {
-		return result.equals(EvaluationResult.FAILED) || result.equals(EvaluationResult.WARNING);
+	public static boolean isSeverity(EvaluationResultType result) {
+		return result.equals(EvaluationResultType.FAILED) || result.equals(EvaluationResultType.WARNING);
 	}
 
 	/**
-	 * Retrieves a severity represented as an {@link EvaluationResult}. Severity
+	 * Retrieves a severity represented as an {@link EvaluationResultType}. Severity
 	 * can only be failed or warning.
 	 * 
 	 * @param name
 	 *            The severity String representation.
-	 * @return An {@link EvaluationResult}.
+	 * @return An {@link EvaluationResultType}.
 	 * @throws IllegalArgumentException
 	 *             if the string does not represent an actual severity.
 	 */
-	public static EvaluationResult toSeverity(String name) {
+	public static EvaluationResultType toSeverity(String name) {
 		if (isSeverity(toEvaluationResult(name))) {
 			return toEvaluationResult(name);
 		} else {

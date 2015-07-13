@@ -46,6 +46,13 @@ public abstract class AbstractMongoTest {
 
 	private MongoQueryHandler queryHandler;
 
+	/*
+	 * Debugging field. If true, the whole test suite will be self-contained.
+	 * Otherwise, it will use the peru.local database (that should be put away
+	 * in a properties file or something like that).
+	 */
+	private static boolean IN_MEMORY = true;
+
 	@BeforeClass
 	public static void setupClass() {
 		try {
@@ -79,10 +86,17 @@ public abstract class AbstractMongoTest {
 	private void initMongoQueryHandler() {
 		Map<String, Object> prop = new HashMap<>();
 
-		prop.put(MongoQueryHandler.MongoProperties.MONGO_HOST.getPropertyName(), serverAddress.getHost());
-		prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(), serverAddress.getPort());
-		prop.put(MongoQueryHandler.MongoProperties.MONGO_DB.getPropertyName(), DATABASE_NAME);
-		prop.put(MongoQueryHandler.MongoProperties.MONGO_COLLECTION.getPropertyName(), COLLECTION_TEST);
+		if (IN_MEMORY) {
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_HOST.getPropertyName(), serverAddress.getHost());
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(), String.valueOf(serverAddress.getPort()));
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_DB.getPropertyName(), DATABASE_NAME);
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_COLLECTION.getPropertyName(), COLLECTION_TEST);
+		} else {
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_HOST.getPropertyName(), "peru.local");
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(), "27017");
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_DB.getPropertyName(), "coast");
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_COLLECTION.getPropertyName(), "events");
+		}
 
 		queryHandler = new MongoQueryHandler(prop);
 
@@ -164,17 +178,17 @@ public abstract class AbstractMongoTest {
 
 		node.addChild(node("class", MongoDBCOASTAdapter.class.getCanonicalName()));
 
-		node.addChild(node("host", serverAddress.getHost()));
-		node.addChild(node("port", serverAddress.getPort()));
-
-		// node.addChild(node("host", "peru.local"));
-		// node.addChild(node("port", 27017));
-
-		node.addChild(node("db", DATABASE_NAME));
-		node.addChild(node("collection", COLLECTION_TEST));
-
-		// node.addChild(node("db", "coast"));
-		// node.addChild(node("collection", "events"));
+		if (IN_MEMORY) {
+			node.addChild(node("host", serverAddress.getHost()));
+			node.addChild(node("port", serverAddress.getPort()));
+			node.addChild(node("db", DATABASE_NAME));
+			node.addChild(node("collection", COLLECTION_TEST));
+		} else {
+			node.addChild(node("host", "peru.local"));
+			node.addChild(node("port", 27017));
+			node.addChild(node("db", "coast"));
+			node.addChild(node("collection", "events"));
+		}
 
 		return node;
 	}

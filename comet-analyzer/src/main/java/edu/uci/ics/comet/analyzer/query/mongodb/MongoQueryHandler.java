@@ -25,10 +25,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import edu.uci.ics.comet.analyzer.query.EventQuery;
-import edu.uci.ics.comet.analyzer.query.QueryHandler;
-import edu.uci.ics.comet.analyzer.query.QueryResult;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryMember;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
+import edu.uci.ics.comet.analyzer.query.QueryHandler;
+import edu.uci.ics.comet.analyzer.query.QueryResult;
 
 public class MongoQueryHandler implements QueryHandler {
 
@@ -56,7 +56,7 @@ public class MongoQueryHandler implements QueryHandler {
 	}
 
 	public void init() {
-		client = new MongoClient((String) properties.get(MongoProperties.MONGO_HOST.getPropertyName()), (Integer) properties.get(MongoProperties.MONGO_PORT.getPropertyName()));
+		client = new MongoClient((String) properties.get(MongoProperties.MONGO_HOST.getPropertyName()), Integer.parseInt((String) properties.get(MongoProperties.MONGO_PORT.getPropertyName())));
 
 		database = client.getDatabase((String) properties.get(MongoProperties.MONGO_DB.getPropertyName()));
 
@@ -64,7 +64,9 @@ public class MongoQueryHandler implements QueryHandler {
 	}
 
 	public void shutdown() {
-		client.close();
+		if (client != null) {
+			client.close();
+		}
 	}
 
 	@Override

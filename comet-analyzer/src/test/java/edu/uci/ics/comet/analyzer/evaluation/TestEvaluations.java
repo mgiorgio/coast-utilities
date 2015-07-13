@@ -10,10 +10,10 @@ import edu.uci.ics.comet.analyzer.query.mongodb.AbstractMongoTest;
  */
 public class TestEvaluations extends AbstractMongoTest {
 
-	private static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResult.FAILED);
-	private static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResult.ERROR);
-	private static final ExpectedEvaluation WARN_EVAL = new ExpectedEvaluation(EvaluationResult.WARNING);
-	private static final ExpectedEvaluation PASS_EVAL = new ExpectedEvaluation(EvaluationResult.PASS);
+	private static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResultType.FAILED);
+	private static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResultType.ERROR);
+	private static final ExpectedEvaluation WARN_EVAL = new ExpectedEvaluation(EvaluationResultType.WARNING);
+	private static final ExpectedEvaluation PASS_EVAL = new ExpectedEvaluation(EvaluationResultType.PASS);
 	private static final String EVENT_TYPE = COMETMembers.TYPE.getName();
 	private static final String ISLAND = COMETMembers.SOURCE_ISLAND.getName();
 
@@ -40,8 +40,8 @@ public class TestEvaluations extends AbstractMongoTest {
 		return new Or().setQueryHandler(getQueryHandler());
 	}
 
-	private static void assertEval(Evaluation eval, EvaluationResult expectedResult) {
-		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate());
+	private static void assertEval(Evaluation eval, EvaluationResultType expectedResult) {
+		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate().getResultType());
 	}
 
 	private static COMETEvent newEvent() {
@@ -49,19 +49,19 @@ public class TestEvaluations extends AbstractMongoTest {
 	}
 
 	private static void assertEvaluationFails(Evaluation eval) {
-		assertEval(eval, EvaluationResult.FAILED);
+		assertEval(eval, EvaluationResultType.FAILED);
 	}
 
 	private static void assertEvaluationWarn(Evaluation eval) {
-		assertEval(eval, EvaluationResult.WARNING);
+		assertEval(eval, EvaluationResultType.WARNING);
 	}
 
 	private static void assertEvaluationPasses(Evaluation eval) {
-		assertEval(eval, EvaluationResult.PASS);
+		assertEval(eval, EvaluationResultType.PASS);
 	}
 
 	private static void assertEvaluationError(Evaluation eval) {
-		assertEval(eval, EvaluationResult.ERROR);
+		assertEval(eval, EvaluationResultType.ERROR);
 	}
 
 	/*
@@ -83,18 +83,28 @@ public class TestEvaluations extends AbstractMongoTest {
 	public void testOneMatchPassPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
 
 		assertEvaluationPasses(eval);
+	}
+
+	@Test
+	public void whenStartIndexIsSetThenItShouldBeConsidered() {
+		PatternEvaluation eval = newPattern();
+		eval.setStartEventID(10L);
+
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
+
+		assertEvaluationFails(eval);
 	}
 
 	@Test
 	public void testMultiMatchPassPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice"));
+		eval.addEvent(newEvent().put(ISLAND, "alice"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "alice"));
 
 		assertEvaluationPasses(eval);
 	}
@@ -103,7 +113,7 @@ public class TestEvaluations extends AbstractMongoTest {
 	public void testOneMatchFailPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "carol"));
+		eval.addEvent(newEvent().put(ISLAND, "carol"));
 
 		assertEvaluationFails(eval);
 	}
@@ -112,8 +122,8 @@ public class TestEvaluations extends AbstractMongoTest {
 	public void testMultiMatchFailPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
 
 		assertEvaluationFails(eval);
 	}
@@ -122,9 +132,9 @@ public class TestEvaluations extends AbstractMongoTest {
 	public void testMultiComplexMatchPassPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
+		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
+		eval.addEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
+		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
 
 		assertEvaluationPasses(eval);
 	}
@@ -133,9 +143,9 @@ public class TestEvaluations extends AbstractMongoTest {
 	public void testMultiComplexMatchFailPattern() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
-		eval.addCOMETEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
+		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
+		eval.addEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
+		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
 
 		assertEvaluationFails(eval);
 	}
@@ -146,7 +156,7 @@ public class TestEvaluations extends AbstractMongoTest {
 		}
 	}
 
-	private static void assertEvalWith(Evaluation composite, EvaluationResult expected, Evaluation... nestedEvals) {
+	private static void assertEvalWith(Evaluation composite, EvaluationResultType expected, Evaluation... nestedEvals) {
 		nestEvals(composite, nestedEvals);
 		assertEval(composite, expected);
 	}
@@ -157,17 +167,17 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void whenAllEvalsPassThenANDEvalShouldPass() {
-		assertEvalWith(newAnd(), EvaluationResult.PASS, PASS_EVAL, PASS_EVAL);
+		assertEvalWith(newAnd(), EvaluationResultType.PASS, PASS_EVAL, PASS_EVAL);
 	}
 
 	@Test
 	public void whenOneEvalFailsAndNoErrorsThenANDEvalShouldFail() {
-		assertEvalWith(newAnd(), EvaluationResult.FAILED, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
+		assertEvalWith(newAnd(), EvaluationResultType.FAILED, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
 	}
 
 	@Test
 	public void whenOneErrorThenAndEvalShouldError() {
-		assertEvalWith(newAnd(), EvaluationResult.ERROR, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
+		assertEvalWith(newAnd(), EvaluationResultType.ERROR, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
 	}
 
 	/*
@@ -175,12 +185,12 @@ public class TestEvaluations extends AbstractMongoTest {
 	 */
 	@Test
 	public void whenAllEvalsPassThenOREvalShouldPass() {
-		assertEvalWith(newOr(), EvaluationResult.PASS, PASS_EVAL, PASS_EVAL);
+		assertEvalWith(newOr(), EvaluationResultType.PASS, PASS_EVAL, PASS_EVAL);
 	}
 
 	@Test
 	public void whenOneEvalPassesAndNoErrorsThenOREvalShouldFail() {
-		assertEvalWith(newOr(), EvaluationResult.PASS, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
+		assertEvalWith(newOr(), EvaluationResultType.PASS, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
 	}
 
 	/*
@@ -198,28 +208,28 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void whenPassIsObtainedItShouldBeChangedToFail() {
-		assertEvalWith(newNot(), EvaluationResult.FAILED, PASS_EVAL);
+		assertEvalWith(newNot(), EvaluationResultType.FAILED, PASS_EVAL);
 	}
 
 	@Test
 	public void whenFailIsObtainedItShouldBeChangedToPass() {
-		assertEvalWith(newNot(), EvaluationResult.PASS, FAILED_EVAL);
+		assertEvalWith(newNot(), EvaluationResultType.PASS, FAILED_EVAL);
 	}
 
 	@Test
 	public void whenWarnIsObtainedItShouldBeReturnedAsIs() {
-		assertEvalWith(newNot(), EvaluationResult.WARNING, WARN_EVAL);
+		assertEvalWith(newNot(), EvaluationResultType.WARNING, WARN_EVAL);
 	}
 
 	@Test
 	public void whenErrorOccursAndItIsNotRedefinedThenErrorShouldBeReturned() {
-		assertEvalWith(newNot(), EvaluationResult.ERROR, ERROR_EVAL);
+		assertEvalWith(newNot(), EvaluationResultType.ERROR, ERROR_EVAL);
 	}
 
 	@Test
 	public void whenErrorOccursAndItIsRedefinedThenTheConfiguredShouldBeReturned() {
 		// Warning is returned instead of Error.
-		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResult.WARNING), EvaluationResult.WARNING, ERROR_EVAL);
+		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResultType.WARNING), EvaluationResultType.WARNING, ERROR_EVAL);
 	}
 
 	/*
@@ -232,9 +242,9 @@ public class TestEvaluations extends AbstractMongoTest {
 		 * If an unexpected result is obtained, it should be replaced by
 		 * warning.
 		 */
-		eval.setConfiguredSeverity(EvaluationResult.WARNING);
+		eval.setConfiguredSeverity(EvaluationResultType.WARNING);
 
-		eval.addCOMETEvent(newEvent().put(ISLAND, "carol"));
+		eval.addEvent(newEvent().put(ISLAND, "carol"));
 
 		assertEvaluationWarn(eval);
 	}

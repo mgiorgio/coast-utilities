@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class EventQuery {
 
 	private List<QueryMember> queryMembers;
@@ -114,9 +116,19 @@ public class EventQuery {
 		public QueryOperation getOperation() {
 			return operation;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("%s:%s (%s)", key, value, operation);
+		}
 	}
 
 	public enum QueryOperation {
 		EQ, NE, GT, GE, LT, LE;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(queryMembers);
 	}
 }

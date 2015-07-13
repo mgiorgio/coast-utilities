@@ -24,6 +24,15 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 	public PatternEvaluation() {
 	}
 
+	protected void addDefaultFields(EventQuery query) {
+		if (getStartEventID() != null) {
+			query.addQueryMember(ID_FIELD, getStartEventID(), QueryOperation.GE);
+		}
+		if (getEndEventID() != null) {
+			query.addQueryMember(ID_FIELD, getEndEventID(), QueryOperation.LE);
+		}
+	}
+
 	@Override
 	protected EvaluationResult doTheEvaluation() {
 		Long id = null;
@@ -34,6 +43,8 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 		for (COMETEvent event : this.getCOMETEvents()) {
 			// Create query to find COMET Event.
 			EventQuery query = new EventQuery(event.getFields());
+
+			addDefaultFields(query);
 
 			if (id != null) {
 				// It isn't the 1st event, then the current event must have come
@@ -49,10 +60,15 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 
 				id = Long.parseLong(result.getLong(ID_FIELD).toString());
 			} else {
-				return EvaluationResult.FAILED;
+				return new EvaluationResult(EvaluationResultType.FAILED);
 			}
 		}
 
-		return EvaluationResult.PASS;
+		return new EvaluationResult(EvaluationResultType.PASS);
+	}
+
+	@Override
+	public String toString() {
+		return "Pattern";
 	}
 }

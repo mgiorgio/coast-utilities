@@ -7,8 +7,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 
 /**
@@ -21,31 +19,15 @@ public abstract class Evaluation {
 
 	private List<Evaluation> nestedEvaluations;
 
-	private String messageIfUnexpected;
-
 	private EvaluationResult result;
 
-	private EvaluationResult configuredSeverity;
+	private EvaluationResultType configuredSeverity;
 
 	/**
 	 * 
 	 */
 	public Evaluation() {
 		nestedEvaluations = new LinkedList<Evaluation>();
-	}
-
-	/**
-	 * @param conf
-	 * @throws IllegalArgumentException
-	 *             if the configuredSeverity string does not represent an actual
-	 *             configuredSeverity.
-	 */
-	private void configureSeverity(Configuration conf) {
-		EvaluationResult severity = Evaluations.toEvaluationResult(conf.getString("configuredSeverity", EvaluationResult.FAILED.getName()));
-		if (severity == null) {
-			throw new IllegalArgumentException("Severity declared for " + this + " is invalid.");
-		}
-		this.setConfiguredSeverity(severity);
 	}
 
 	public void addNestedEvaluation(Evaluation evaluation) {
@@ -56,16 +38,12 @@ public abstract class Evaluation {
 		return Collections.unmodifiableList(nestedEvaluations);
 	}
 
-	public EvaluationResult getConfiguredSeverity() {
+	public EvaluationResultType getConfiguredSeverity() {
 		return configuredSeverity;
 	}
 
-	public void setConfiguredSeverity(EvaluationResult severity) {
+	public void setConfiguredSeverity(EvaluationResultType severity) {
 		this.configuredSeverity = severity;
-	}
-
-	public String getMessageIfUnexpected() {
-		return messageIfUnexpected;
 	}
 
 	public EvaluationResult getResult() {
@@ -76,7 +54,7 @@ public abstract class Evaluation {
 		this.result = result;
 	}
 
-	public List<Evaluation> getDeepEvaluations(EvaluationResult result) {
+	public List<Evaluation> getDeepEvaluations(EvaluationResultType result) {
 		List<Evaluation> evaluations = new LinkedList<Evaluation>();
 
 		for (Evaluation evaluation : nestedEvaluations) {
@@ -88,20 +66,18 @@ public abstract class Evaluation {
 
 	public EvaluationResult evaluate() {
 		try {
-			EvaluationResult result = this.doTheEvaluation();
-			this.setResult(adaptResultIfItIsUnexpected(result));
+			this.setResult(this.doTheEvaluation());
+			adaptResultIfItIsUnexpected(getResult());
 		} catch (Exception e) {
-			// TODO Wrap Exception somehow so it can be accessed later.
-			this.setResult(EvaluationResult.ERROR);
+			this.setResult(new EvaluationResult(EvaluationResultType.ERROR));
+			this.getResult().setExceptionIfError(e);
 		}
 		return this.getResult();
 	}
 
-	private EvaluationResult adaptResultIfItIsUnexpected(EvaluationResult result) {
-		if (getConfiguredSeverity() != null && Evaluations.isSeverity(result)) {
-			return getConfiguredSeverity();
-		} else {
-			return result;
+	private void adaptResultIfItIsUnexpected(EvaluationResult result) {
+		if (getConfiguredSeverity() != null && Evaluations.isSeverity(result.getResultType())) {
+			result.setResultType(getConfiguredSeverity());
 		}
 	}
 

@@ -21,22 +21,27 @@ public class Or extends Evaluation {
 		 * The following algorithm could be abstracted away here and in And and
 		 * solved using an priority-based list.
 		 */
-		EvaluationResult result = EvaluationResult.ERROR;
+		EvaluationResultType result = EvaluationResultType.ERROR;
 
 		for (Evaluation eval : this.getNestedEvaluations()) {
 			EvaluationResult nestedResult = eval.evaluate();
 
-			if (nestedResult.equals(EvaluationResult.PASS)) {
-				return EvaluationResult.PASS;
-			} else if (nestedResult.equals(EvaluationResult.WARNING) && !result.equals(EvaluationResult.PASS)) {
-				result = EvaluationResult.WARNING;
-			} else if (nestedResult.equals(EvaluationResult.FAILED) && !result.equals(EvaluationResult.WARNING)) {
-				result = EvaluationResult.FAILED;
-			} else if (nestedResult.equals(EvaluationResult.ERROR) && !result.equals(EvaluationResult.FAILED)) {
-				result = EvaluationResult.ERROR;
+			if (nestedResult.getResultType().equals(EvaluationResultType.PASS)) {
+				return new EvaluationResult(EvaluationResultType.PASS);
+			} else if (nestedResult.getResultType().equals(EvaluationResultType.WARNING) && !result.equals(EvaluationResultType.PASS)) {
+				result = EvaluationResultType.WARNING;
+			} else if (nestedResult.getResultType().equals(EvaluationResultType.FAILED) && !result.equals(EvaluationResultType.WARNING)) {
+				result = EvaluationResultType.FAILED;
+			} else if (nestedResult.getResultType().equals(EvaluationResultType.ERROR) && !result.equals(EvaluationResultType.FAILED)) {
+				result = EvaluationResultType.ERROR;
 			}
 		}
 
-		return result;
+		return new EvaluationResult(result);
+	}
+
+	@Override
+	public String toString() {
+		return "OR";
 	}
 }

@@ -9,13 +9,13 @@ package edu.uci.ics.comet.analyzer.evaluation;
  */
 public class ExpectedEvaluation extends Evaluation {
 
-	private EvaluationResult result;
+	private EvaluationResultType resultType;
 
 	/**
 	 * 
 	 */
-	public ExpectedEvaluation(EvaluationResult result) {
-		this.result = result;
+	public ExpectedEvaluation(EvaluationResultType resultType) {
+		this.resultType = resultType;
 	}
 
 	/*
@@ -25,7 +25,7 @@ public class ExpectedEvaluation extends Evaluation {
 	 */
 	@Override
 	protected EvaluationResult doTheEvaluation() {
-		return this.result;
+		return new EvaluationResult(resultType);
 	}
 
 }

@@ -6,6 +6,7 @@ package edu.uci.ics.comet.analyzer.config;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -17,12 +18,14 @@ import org.jdom2.input.SAXBuilder;
 import edu.uci.ics.comet.analyzer.evaluation.And;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
-import edu.uci.ics.comet.analyzer.evaluation.EvaluationResult;
+import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluations;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
+import edu.uci.ics.comet.analyzer.query.QueryHandler;
+import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
 
 /**
  * This class is responsible for reading the XML file and creating all config
@@ -44,6 +47,8 @@ public class ConfigReader {
 
 	private static Element root;
 
+	private static QueryHandler queryHandler;
+
 	/**
 	 * @throws IOException
 	 * @throws JDOMException
@@ -59,10 +64,21 @@ public class ConfigReader {
 		root = jdomDoc.getRootElement();
 	}
 
-	public static void createElements() {
+	public static Evaluation createElements() {
 		readGlobals();
 
-		createEvaluations();
+		initQueryHandler();
+
+		return createEvaluations();
+	}
+
+	private static void initQueryHandler() {
+		queryHandler = new MongoQueryHandler(globals());
+		queryHandler.init();
+	}
+
+	public static void shutdown() {
+		queryHandler.shutdown();
 	}
 
 	public static void main(String[] args) throws IOException, JDOMException {
@@ -70,7 +86,7 @@ public class ConfigReader {
 		ConfigReader.createElements();
 	}
 
-	private static void createEvaluations() {
+	private static Evaluation createEvaluations() {
 		Element assertions = root.getChild("assertions");
 
 		And and = new And();
@@ -78,6 +94,8 @@ public class ConfigReader {
 		for (Element assertion : assertions.getChildren()) {
 			createEvaluation(assertion, and);
 		}
+
+		return and;
 	}
 
 	private static void createEvaluation(Element assertion, Evaluation parent) {
@@ -105,7 +123,13 @@ public class ConfigReader {
 	private static Evaluation createNot(Element assertion) {
 		Not not = new Not();
 
-		createEvaluation(assertion, not);
+		List<Element> nestedAssertion = assertion.getChildren();
+
+		if (nestedAssertion.size() != 1) {
+			throw new RuntimeException("NOT evaluation must have exactly one nested evaluation.");
+		}
+
+		createEvaluation(nestedAssertion.get(0), not);
 
 		return not;
 	}
@@ -144,7 +168,7 @@ public class ConfigReader {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			propertiesToMap(event, fields);
 			COMETEvent cometEvent = new COMETEvent(fields);
-			eval.addCOMETEvent(cometEvent);
+			eval.addEvent(cometEvent);
 		}
 
 		return eval;
@@ -165,22 +189,37 @@ public class ConfigReader {
 	private static Evaluation createPattern(Element pattern) {
 		PatternEvaluation eval = new PatternEvaluation();
 
+		configureGlobals(eval);
+
 		configureSeverity(pattern, eval);
 
 		for (Element event : pattern.getChildren()) {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			propertiesToMap(event, fields);
 			COMETEvent cometEvent = new COMETEvent(fields);
-			eval.addCOMETEvent(cometEvent);
+			eval.addEvent(cometEvent);
 		}
 
 		return eval;
 	}
 
+	private static void configureGlobals(PatternEvaluation eval) {
+		eval.setQueryHandler(queryHandler);
+
+		if (ConfigReader.globals().containsKey("start")) {
+			eval.setStartEventID(Long.parseLong((String) ConfigReader.globals().get("start")));
+		}
+
+		if (ConfigReader.globals().containsKey("end")) {
+			eval.setEndEventID(Long.parseLong((String) ConfigReader.globals().get("end")));
+		}
+	}
+
 	private static void configureSeverity(Element pattern, Evaluation eval) {
-		EvaluationResult severity = Evaluations.toEvaluationResult(pattern.getAttributeValue("severity", EvaluationResult.FAILED.getName()));
+		String severityValue = pattern.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
+		EvaluationResultType severity = Evaluations.toEvaluationResult(severityValue);
 		if (severity == null) {
-			throw new IllegalArgumentException("Severity declared for " + pattern.getName() + " is invalid.");
+			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
 		}
 
 		eval.setConfiguredSeverity(severity);

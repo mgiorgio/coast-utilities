@@ -2,7 +2,7 @@ package edu.uci.ics.comet.analyzer.evaluation;
 
 public class Not extends Evaluation {
 
-	private EvaluationResult severityOnError;
+	private EvaluationResultType severityOnError;
 
 	public Not() {
 	}
@@ -11,14 +11,17 @@ public class Not extends Evaluation {
 	protected EvaluationResult doTheEvaluation() {
 		EvaluationResult nestedResult = this.getNestedEvaluations().get(0).evaluate();
 
-		switch (nestedResult) {
+		switch (nestedResult.getResultType()) {
 		case PASS:
-			return EvaluationResult.FAILED;
+			return new EvaluationResult(EvaluationResultType.FAILED);
 		case FAILED:
-			return EvaluationResult.PASS;
+			return new EvaluationResult(EvaluationResultType.PASS);
 		case ERROR:
 			if (onErrorRedefined()) {
-				return this.severityOnError;
+				EvaluationResult result = new EvaluationResult(this.severityOnError);
+				// Keep exception.
+				result.setExceptionIfError(nestedResult.getExceptionIfError());
+				return result;
 			} else {
 				return nestedResult;
 			}
@@ -31,7 +34,7 @@ public class Not extends Evaluation {
 		return this.severityOnError != null;
 	}
 
-	public Not setOnErrorSeverity(EvaluationResult severity) {
+	public Not setOnErrorSeverity(EvaluationResultType severity) {
 		if (Evaluations.isSeverity(severity)) {
 			this.severityOnError = severity;
 		} else {
@@ -47,5 +50,10 @@ public class Not extends Evaluation {
 		} else {
 			throw new RuntimeException("NOT Evaluation can only have one nested evaluation.");
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "NOT";
 	}
 }
