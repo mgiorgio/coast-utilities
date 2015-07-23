@@ -24,6 +24,7 @@ import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
 
@@ -187,7 +188,7 @@ public class ConfigReader {
 	}
 
 	private static Evaluation createPattern(Element pattern) {
-		PatternEvaluation eval = new PatternEvaluation();
+		PatternEvaluation eval = new PatternEvaluation(CaptureEngine.getRootEngine().newEngine());
 
 		configureGlobals(eval);
 
@@ -219,7 +220,8 @@ public class ConfigReader {
 		String severityValue = pattern.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
 		EvaluationResultType severity = Evaluations.toEvaluationResult(severityValue);
 		if (severity == null) {
-			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
+			throw new IllegalArgumentException(
+					String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
 		}
 
 		eval.setConfiguredSeverity(severity);

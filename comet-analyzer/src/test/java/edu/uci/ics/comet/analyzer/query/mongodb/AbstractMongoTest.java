@@ -3,7 +3,6 @@ package edu.uci.ics.comet.analyzer.query.mongodb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
@@ -23,11 +21,19 @@ import com.mongodb.client.MongoDatabase;
 
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.tests.MongodForTestsFactory;
+import edu.uci.ics.comet.analyzer.evaluation.And;
+import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
+import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
+import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
+import edu.uci.ics.comet.analyzer.evaluation.ExpectedEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.Not;
+import edu.uci.ics.comet.analyzer.evaluation.Or;
+import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.QueryResult;
-import edu.uci.ics.comet.generator.EventStream;
 import edu.uci.ics.comet.generator.adapter.mongodb.MongoDBCOASTAdapter;
 import edu.uci.ics.comet.generator.producer.DynamicMessageProducer;
 import edu.uci.ics.comet.generator.rates.FixedRate;
@@ -46,6 +52,14 @@ public abstract class AbstractMongoTest {
 
 	private MongoQueryHandler queryHandler;
 
+	protected static final String EVENT_TYPE = COMETMembers.TYPE.getName();
+	protected static final String ISLAND = COMETMembers.SOURCE_ISLAND.getName();
+
+	protected static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResultType.FAILED);
+	protected static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResultType.ERROR);
+	protected static final ExpectedEvaluation WARN_EVAL = new ExpectedEvaluation(EvaluationResultType.WARNING);
+	protected static final ExpectedEvaluation PASS_EVAL = new ExpectedEvaluation(EvaluationResultType.PASS);
+
 	/*
 	 * Debugging field. If true, the whole test suite will be self-contained.
 	 * Otherwise, it will use the peru.local database (that should be put away
@@ -53,12 +67,9 @@ public abstract class AbstractMongoTest {
 	 */
 	private static boolean IN_MEMORY = true;
 
-	@BeforeClass
 	public static void setupClass() {
 		try {
 			embedMongoDB();
-
-			insertInitialData();
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
@@ -70,7 +81,8 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected enum COMETMembers {
-		SOURCE_ISLAND("source-island"), SOURCE_ISLET("source-islet"), TYPE("type"), VERSION("version"), TIME("time"), PLACE("place"), EVENT_ID("eventID");
+		SOURCE_ISLAND("source-island"), SOURCE_ISLET("source-islet"), TYPE("type"), VERSION("version"), TIME(
+				"time"), PLACE("place"), EVENT_ID("eventID");
 
 		private String name;
 
@@ -88,7 +100,8 @@ public abstract class AbstractMongoTest {
 
 		if (IN_MEMORY) {
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_HOST.getPropertyName(), serverAddress.getHost());
-			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(), String.valueOf(serverAddress.getPort()));
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(),
+					String.valueOf(serverAddress.getPort()));
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_DB.getPropertyName(), DATABASE_NAME);
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_COLLECTION.getPropertyName(), COLLECTION_TEST);
 		} else {
@@ -107,18 +120,8 @@ public abstract class AbstractMongoTest {
 		db.getCollection(COLLECTION_TEST).drop();
 	}
 
-	protected static void insertInitialData() {
-		List<EventStream> streams = new LinkedList<EventStream>();
-		streams.add(new EventStream(createEventStreamConf("alice", "x", "curl-new", "inter", 1, 1)));
-		streams.add(new EventStream(createEventStreamConf("bob", "y", "curl-new", "inter", 1, 1)));
-		streams.add(new EventStream(createEventStreamConf("alice", "x", "curl-send", "inter", 5, 5)));
-
-		for (EventStream eventStream : streams) {
-			eventStream.run();
-		}
-	}
-
-	private static HierarchicalConfiguration createEventStreamConf(String sourceIsland, String sourceIslet, String type, String place, int amount, int total) {
+	protected static HierarchicalConfiguration createEventStreamConf(String sourceIsland, String sourceIslet,
+			String type, String place, int amount, int total) {
 
 		Node root = new Node();
 		root.addChild(createTransportConf());
@@ -243,6 +246,66 @@ public abstract class AbstractMongoTest {
 
 		Assert.assertEquals("Number of results is unexpected.", expectedIDs.size(), results.size());
 
-		Assert.assertTrue("Event IDs found are different from the expected ones.", ListUtils.isEqualList(extractEventIDs(results), expectedIDs));
+		Assert.assertTrue("Event IDs found are different from the expected ones.",
+				ListUtils.isEqualList(extractEventIDs(results), expectedIDs));
+	}
+
+	/*
+	 * Utils
+	 */
+	protected PatternEvaluation newPattern() {
+		PatternEvaluation eval = new PatternEvaluation(CaptureEngine.getRootEngine());
+		eval.setQueryHandler(getQueryHandler());
+		return eval;
+	}
+
+	protected Not newNot() {
+		Not not = new Not();
+		not.setQueryHandler(getQueryHandler());
+		return not;
+	}
+
+	protected Evaluation newAnd() {
+		return new And().setQueryHandler(getQueryHandler());
+	}
+
+	protected Evaluation newOr() {
+		return new Or().setQueryHandler(getQueryHandler());
+	}
+
+	protected static void assertEval(Evaluation eval, EvaluationResultType expectedResult) {
+		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate().getResultType());
+	}
+
+	protected static COMETEvent newEvent() {
+		return new COMETEvent();
+	}
+
+	protected static void assertEvaluationFails(Evaluation eval) {
+		assertEval(eval, EvaluationResultType.FAILED);
+	}
+
+	protected static void assertEvaluationWarn(Evaluation eval) {
+		assertEval(eval, EvaluationResultType.WARNING);
+	}
+
+	protected static void assertEvaluationPasses(Evaluation eval) {
+		assertEval(eval, EvaluationResultType.PASS);
+	}
+
+	protected static void assertEvaluationError(Evaluation eval) {
+		assertEval(eval, EvaluationResultType.ERROR);
+	}
+
+	protected static void nestEvals(Evaluation composite, Evaluation... evals) {
+		for (Evaluation evaluation : evals) {
+			composite.addNestedEvaluation(evaluation);
+		}
+	}
+
+	protected static void assertEvalWith(Evaluation composite, EvaluationResultType expected,
+			Evaluation... nestedEvals) {
+		nestEvals(composite, nestedEvals);
+		assertEval(composite, expected);
 	}
 }

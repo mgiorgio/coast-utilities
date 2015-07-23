@@ -34,4 +34,9 @@ public class MongoResultsIterator implements Iterator<QueryResult> {
 		super.finalize();
 	}
 
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException("remove() is not implemented.");
+	}
+
 }

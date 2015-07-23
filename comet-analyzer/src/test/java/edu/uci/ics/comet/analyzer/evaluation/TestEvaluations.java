@@ -1,72 +1,36 @@
 package edu.uci.ics.comet.analyzer.evaluation;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.uci.ics.comet.analyzer.query.mongodb.AbstractMongoTest;
+import edu.uci.ics.comet.generator.EventStream;
 
 /*
  * This class shouldn't be tested using Mongo but a TestQueryHandler.
  */
 public class TestEvaluations extends AbstractMongoTest {
 
-	private static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResultType.FAILED);
-	private static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResultType.ERROR);
-	private static final ExpectedEvaluation WARN_EVAL = new ExpectedEvaluation(EvaluationResultType.WARNING);
-	private static final ExpectedEvaluation PASS_EVAL = new ExpectedEvaluation(EvaluationResultType.PASS);
-	private static final String EVENT_TYPE = COMETMembers.TYPE.getName();
-	private static final String ISLAND = COMETMembers.SOURCE_ISLAND.getName();
-
-	public TestEvaluations() {
+	@BeforeClass
+	public static void setupClass() {
+		AbstractMongoTest.setupClass();
+		insertInitialData();
 	}
 
-	private PatternEvaluation newPattern() {
-		PatternEvaluation eval = new PatternEvaluation();
-		eval.setQueryHandler(getQueryHandler());
-		return eval;
-	}
+	protected static void insertInitialData() {
+		List<EventStream> streams = new LinkedList<EventStream>();
+		streams.add(new EventStream(createEventStreamConf("alice", "x", "curl-new", "inter", 1, 1)));
+		streams.add(new EventStream(createEventStreamConf("bob", "y", "curl-new", "inter", 1, 1)));
+		streams.add(new EventStream(createEventStreamConf("alice", "x", "curl-send", "inter", 5, 5)));
 
-	private Not newNot() {
-		Not not = new Not();
-		not.setQueryHandler(getQueryHandler());
-		return not;
+		for (EventStream eventStream : streams) {
+			eventStream.run();
+		}
 	}
-
-	private Evaluation newAnd() {
-		return new And().setQueryHandler(getQueryHandler());
-	}
-
-	private Evaluation newOr() {
-		return new Or().setQueryHandler(getQueryHandler());
-	}
-
-	private static void assertEval(Evaluation eval, EvaluationResultType expectedResult) {
-		Assert.assertEquals("Evaluation result is incorrect.", expectedResult, eval.evaluate().getResultType());
-	}
-
-	private static COMETEvent newEvent() {
-		return new COMETEvent();
-	}
-
-	private static void assertEvaluationFails(Evaluation eval) {
-		assertEval(eval, EvaluationResultType.FAILED);
-	}
-
-	private static void assertEvaluationWarn(Evaluation eval) {
-		assertEval(eval, EvaluationResultType.WARNING);
-	}
-
-	private static void assertEvaluationPasses(Evaluation eval) {
-		assertEval(eval, EvaluationResultType.PASS);
-	}
-
-	private static void assertEvaluationError(Evaluation eval) {
-		assertEval(eval, EvaluationResultType.ERROR);
-	}
-
-	/*
-	 * Evaluations
-	 */
 
 	/*
 	 * Pattern Evaluation.
@@ -150,17 +114,6 @@ public class TestEvaluations extends AbstractMongoTest {
 		assertEvaluationFails(eval);
 	}
 
-	private static void nestEvals(Evaluation composite, Evaluation... evals) {
-		for (Evaluation evaluation : evals) {
-			composite.addNestedEvaluation(evaluation);
-		}
-	}
-
-	private static void assertEvalWith(Evaluation composite, EvaluationResultType expected, Evaluation... nestedEvals) {
-		nestEvals(composite, nestedEvals);
-		assertEval(composite, expected);
-	}
-
 	/*
 	 * AND Evaluation.
 	 */
@@ -229,7 +182,8 @@ public class TestEvaluations extends AbstractMongoTest {
 	@Test
 	public void whenErrorOccursAndItIsRedefinedThenTheConfiguredShouldBeReturned() {
 		// Warning is returned instead of Error.
-		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResultType.WARNING), EvaluationResultType.WARNING, ERROR_EVAL);
+		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResultType.WARNING), EvaluationResultType.WARNING,
+				ERROR_EVAL);
 	}
 
 	/*

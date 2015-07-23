@@ -5,6 +5,7 @@ package edu.uci.ics.comet.analyzer.evaluation;
 
 import java.util.Iterator;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
@@ -18,10 +19,13 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 
 	private static final String ID_FIELD = "eventID";
 
+	private CaptureEngine captureEngine;
+
 	/**
 	 * 
 	 */
-	public PatternEvaluation() {
+	public PatternEvaluation(CaptureEngine engine) {
+		captureEngine = engine;
 	}
 
 	protected void addDefaultFields(EventQuery query) {
@@ -37,12 +41,11 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 	protected EvaluationResult doTheEvaluation() {
 		Long id = null;
 
-		QueryHandler queryHandler = getQueryHandler(); // TODO Have this cached
-														// somewhere?
+		QueryHandler queryHandler = getQueryHandler();
 
 		for (COMETEvent event : this.getCOMETEvents()) {
 			// Create query to find COMET Event.
-			EventQuery query = new EventQuery(event.getFields());
+			EventQuery query = new EventQuery(captureEngine.prepareQuery(event.getFields()));
 
 			addDefaultFields(query);
 
@@ -59,6 +62,8 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 				QueryResult result = iterator.next();
 
 				id = Long.parseLong(result.getLong(ID_FIELD).toString());
+
+				captureEngine.processQueryResult(event, result);
 			} else {
 				return new EvaluationResult(EvaluationResultType.FAILED);
 			}
