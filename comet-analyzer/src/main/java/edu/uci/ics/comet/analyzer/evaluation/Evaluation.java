@@ -23,6 +23,8 @@ public abstract class Evaluation {
 
 	private EvaluationResultType configuredSeverity;
 
+	private String description;
+
 	/**
 	 * 
 	 */
@@ -88,6 +90,14 @@ public abstract class Evaluation {
 
 	public QueryHandler getQueryHandler() {
 		return this.queryHandler;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	protected abstract EvaluationResult doTheEvaluation();

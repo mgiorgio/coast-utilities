@@ -13,7 +13,7 @@ public class EvaluationsManager {
 	}
 
 	private void printNested(Evaluation eval, int depth) {
-		System.out.println(String.format("%sEvaluating %s. Result: %s", StringUtils.repeat(" ", depth * 4), eval, eval.getResult()));
+		System.out.println(String.format("%sEvaluating %s. Result: %s. Description: %s", StringUtils.repeat(" ", depth * 4), eval, eval.getResult(), eval.getDescription()));
 
 		if (!eval.getNestedEvaluations().isEmpty()) {
 			for (Evaluation nestedEval : eval.getNestedEvaluations()) {

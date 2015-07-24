@@ -37,6 +37,7 @@ import edu.uci.ics.comet.analyzer.query.QueryResult;
 import edu.uci.ics.comet.generator.adapter.mongodb.MongoDBCOASTAdapter;
 import edu.uci.ics.comet.generator.producer.DynamicMessageProducer;
 import edu.uci.ics.comet.generator.rates.FixedRate;
+import edu.uci.ics.comet.protocol.fields.COMETFields;
 
 public abstract class AbstractMongoTest {
 
@@ -52,8 +53,8 @@ public abstract class AbstractMongoTest {
 
 	private MongoQueryHandler queryHandler;
 
-	protected static final String EVENT_TYPE = COMETMembers.TYPE.getName();
-	protected static final String ISLAND = COMETMembers.SOURCE_ISLAND.getName();
+	protected static final String EVENT_TYPE = COMETFields.TYPE.getName();
+	protected static final String ISLAND = COMETFields.SOURCE_ISLAND.getName();
 
 	protected static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResultType.FAILED);
 	protected static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResultType.ERROR);
@@ -80,28 +81,12 @@ public abstract class AbstractMongoTest {
 		initMongoQueryHandler();
 	}
 
-	protected enum COMETMembers {
-		SOURCE_ISLAND("source-island"), SOURCE_ISLET("source-islet"), TYPE("type"), VERSION("version"), TIME(
-				"time"), PLACE("place"), EVENT_ID("eventID");
-
-		private String name;
-
-		private COMETMembers(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return this.name;
-		}
-	}
-
 	private void initMongoQueryHandler() {
 		Map<String, Object> prop = new HashMap<>();
 
 		if (IN_MEMORY) {
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_HOST.getPropertyName(), serverAddress.getHost());
-			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(),
-					String.valueOf(serverAddress.getPort()));
+			prop.put(MongoQueryHandler.MongoProperties.MONGO_PORT.getPropertyName(), String.valueOf(serverAddress.getPort()));
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_DB.getPropertyName(), DATABASE_NAME);
 			prop.put(MongoQueryHandler.MongoProperties.MONGO_COLLECTION.getPropertyName(), COLLECTION_TEST);
 		} else {
@@ -120,8 +105,7 @@ public abstract class AbstractMongoTest {
 		db.getCollection(COLLECTION_TEST).drop();
 	}
 
-	protected static HierarchicalConfiguration createEventStreamConf(String sourceIsland, String sourceIslet,
-			String type, String place, int amount, int total) {
+	protected static HierarchicalConfiguration createEventStreamConf(String sourceIsland, String sourceIslet, String type, String place, int amount, int total) {
 
 		Node root = new Node();
 		root.addChild(createTransportConf());
@@ -165,13 +149,14 @@ public abstract class AbstractMongoTest {
 	private static Node createProducerEvent(String sourceIsland, String sourceIslet, String type, String place) {
 		Node node = new Node("event");
 
-		node.addChild(node(COMETMembers.SOURCE_ISLAND.getName(), sourceIsland));
-		node.addChild(node(COMETMembers.SOURCE_ISLET.getName(), sourceIslet));
-		node.addChild(node(COMETMembers.TYPE.getName(), type));
-		node.addChild(node(COMETMembers.VERSION.getName(), "0.1"));
-		node.addChild(node(COMETMembers.TIME.getName(), "${var:timestamp}", "long"));
-		node.addChild(node(COMETMembers.PLACE.getName(), place));
-		node.addChild(node(COMETMembers.EVENT_ID.getName(), "${var:inc}", "long"));
+		node.addChild(node(COMETFields.SOURCE_ISLAND.getName(), sourceIsland));
+		node.addChild(node(COMETFields.SOURCE_ISLET.getName(), sourceIslet));
+		node.addChild(node(COMETFields.TYPE.getName(), type));
+		node.addChild(node(COMETFields.VERSION.getName(), "0.1"));
+		node.addChild(node(COMETFields.TIME.getName(), "${var:timestamp}", "long"));
+		node.addChild(node(COMETFields.PLACE.getName(), place));
+		node.addChild(node(COMETFields.MQ_TIME.getName(), "${var:timestamp}", "long"));
+		node.addChild(node(COMETFields.EVENT_ID.getName(), "${var:inc}", "long"));
 
 		return node;
 	}
@@ -229,25 +214,24 @@ public abstract class AbstractMongoTest {
 		return new EventQuery(new EventQuery.QueryMember(key, value, op));
 	}
 
-	private List<Integer> extractEventIDs(List<QueryResult> results) {
-		List<Integer> eventIDs = new ArrayList<Integer>(results.size());
+	private List<Long> extractEventIDs(List<QueryResult> results) {
+		List<Long> eventIDs = new ArrayList<Long>(results.size());
 
 		for (QueryResult queryResult : results) {
-			eventIDs.add(queryResult.getInteger(COMETMembers.EVENT_ID.getName()));
+			eventIDs.add(queryResult.getLong(COMETFields.EVENT_ID.getName()));
 		}
 
 		return eventIDs;
 	}
 
-	protected void assertEventIDs(List<QueryResult> results, List<Integer> expectedIDs) {
+	protected void assertEventIDs(List<QueryResult> results, List<Long> expectedIDs) {
 		if (results == null || expectedIDs == null) {
 			throw new NullPointerException();
 		}
 
 		Assert.assertEquals("Number of results is unexpected.", expectedIDs.size(), results.size());
 
-		Assert.assertTrue("Event IDs found are different from the expected ones.",
-				ListUtils.isEqualList(extractEventIDs(results), expectedIDs));
+		Assert.assertTrue("Event IDs found are different from the expected ones.", ListUtils.isEqualList(extractEventIDs(results), expectedIDs));
 	}
 
 	/*
@@ -303,8 +287,7 @@ public abstract class AbstractMongoTest {
 		}
 	}
 
-	protected static void assertEvalWith(Evaluation composite, EvaluationResultType expected,
-			Evaluation... nestedEvals) {
+	protected static void assertEvalWith(Evaluation composite, EvaluationResultType expected, Evaluation... nestedEvals) {
 		nestEvals(composite, nestedEvals);
 		assertEval(composite, expected);
 	}

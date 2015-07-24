@@ -26,14 +26,14 @@ public class EventQuery {
 	public EventQuery(Map<String, Object> fields) {
 		this();
 		for (Entry<String, Object> field : fields.entrySet()) {
-			addQueryMember(field.getKey(), field.getValue(), QueryOperation.EQ);
+			addMember(field.getKey(), field.getValue(), QueryOperation.EQ);
 		}
 	}
 
 	public EventQuery(QueryMember... members) {
 		this();
 		for (QueryMember member : members) {
-			this.addQueryMember(member);
+			this.addMember(member);
 		}
 	}
 
@@ -44,8 +44,9 @@ public class EventQuery {
 	 * @param value
 	 * @param operation
 	 */
-	public void addQueryMember(QueryMember member) {
+	public EventQuery addMember(QueryMember member) {
 		queryMembers.add(member);
+		return this;
 	}
 
 	/**
@@ -55,8 +56,9 @@ public class EventQuery {
 	 * @param value
 	 * @param operation
 	 */
-	public void addQueryMember(String key, Object value, QueryOperation operation) {
-		this.addQueryMember(new QueryMember(key, value, operation));
+	public EventQuery addMember(String key, Object value, QueryOperation operation) {
+		this.addMember(new QueryMember(key, value, operation));
+		return this;
 	}
 
 	/**

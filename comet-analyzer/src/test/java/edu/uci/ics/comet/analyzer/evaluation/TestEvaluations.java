@@ -52,10 +52,9 @@ public class TestEvaluations extends AbstractMongoTest {
 		assertEvaluationPasses(eval);
 	}
 
-	@Test
+	@Deprecated
 	public void whenStartIndexIsSetThenItShouldBeConsidered() {
 		PatternEvaluation eval = newPattern();
-		eval.setStartEventID(10L);
 
 		eval.addEvent(newEvent().put(ISLAND, "bob"));
 
@@ -182,8 +181,7 @@ public class TestEvaluations extends AbstractMongoTest {
 	@Test
 	public void whenErrorOccursAndItIsRedefinedThenTheConfiguredShouldBeReturned() {
 		// Warning is returned instead of Error.
-		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResultType.WARNING), EvaluationResultType.WARNING,
-				ERROR_EVAL);
+		assertEvalWith(newNot().setOnErrorSeverity(EvaluationResultType.WARNING), EvaluationResultType.WARNING, ERROR_EVAL);
 	}
 
 	/*

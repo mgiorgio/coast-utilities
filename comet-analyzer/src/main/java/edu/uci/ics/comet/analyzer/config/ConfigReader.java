@@ -100,25 +100,29 @@ public class ConfigReader {
 	}
 
 	private static void createEvaluation(Element assertion, Evaluation parent) {
+		Evaluation evaluation;
 		switch (assertion.getName()) {
 		case "pattern":
-			parent.addNestedEvaluation(createPattern(assertion));
+			evaluation = createPattern(assertion);
 			break;
 		case "volume":
-			parent.addNestedEvaluation(createVolume(assertion));
+			evaluation = createVolume(assertion);
 			break;
 		case "or":
-			parent.addNestedEvaluation(createOr(assertion));
+			evaluation = createOr(assertion);
 			break;
 		case "and":
-			parent.addNestedEvaluation(createAnd(assertion));
+			evaluation = createAnd(assertion);
 			break;
 		case "not":
-			parent.addNestedEvaluation(createNot(assertion));
+			evaluation = createNot(assertion);
 			break;
 		default:
-			break;
+			return;
 		}
+
+		evaluation.setDescription(assertion.getAttributeValue("description"));
+		parent.addNestedEvaluation(evaluation);
 	}
 
 	private static Evaluation createNot(Element assertion) {
@@ -207,12 +211,8 @@ public class ConfigReader {
 	private static void configureGlobals(PatternEvaluation eval) {
 		eval.setQueryHandler(queryHandler);
 
-		if (ConfigReader.globals().containsKey("start")) {
-			eval.setStartEventID(Long.parseLong((String) ConfigReader.globals().get("start")));
-		}
-
-		if (ConfigReader.globals().containsKey("end")) {
-			eval.setEndEventID(Long.parseLong((String) ConfigReader.globals().get("end")));
+		if (ConfigReader.globals().containsKey("last-component")) {
+			eval.setLastComponent((String) ConfigReader.globals().get("last-component"));
 		}
 	}
 
@@ -220,8 +220,7 @@ public class ConfigReader {
 		String severityValue = pattern.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
 		EvaluationResultType severity = Evaluations.toEvaluationResult(severityValue);
 		if (severity == null) {
-			throw new IllegalArgumentException(
-					String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
+			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
 		}
 
 		eval.setConfiguredSeverity(severity);

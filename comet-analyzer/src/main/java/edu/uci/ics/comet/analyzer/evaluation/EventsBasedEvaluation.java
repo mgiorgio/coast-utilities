@@ -8,9 +8,7 @@ public abstract class EventsBasedEvaluation extends Evaluation {
 
 	private List<COMETEvent> events;
 
-	private Long startEventID;
-
-	private Long endEventID;
+	private String lastComponent;
 
 	public EventsBasedEvaluation() {
 		events = new LinkedList<COMETEvent>();
@@ -24,19 +22,11 @@ public abstract class EventsBasedEvaluation extends Evaluation {
 		return Collections.unmodifiableList(events);
 	}
 
-	public Long getStartEventID() {
-		return startEventID;
+	public String getLastComponent() {
+		return lastComponent;
 	}
 
-	public void setStartEventID(Long startEventID) {
-		this.startEventID = startEventID;
-	}
-
-	public Long getEndEventID() {
-		return endEventID;
-	}
-
-	public void setEndEventID(Long endEventID) {
-		this.endEventID = endEventID;
+	public void setLastComponent(String lastComponent) {
+		this.lastComponent = lastComponent;
 	}
 }

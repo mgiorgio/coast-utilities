@@ -6,13 +6,14 @@ public class Evaluations {
 	}
 
 	/**
-	 * Retrieves a member from the {@link EvaluationResultType} enumeration given
-	 * its representative name.
+	 * Retrieves a member from the {@link EvaluationResultType} enumeration
+	 * given its representative name.
 	 * 
 	 * @param resultName
-	 *            The {@link EvaluationResultType} name used in the configuration.
-	 * @return An {@link EvaluationResultType}, or <code>null</code> if the given
-	 *         name does not represent any {@link EvaluationResultType}.
+	 *            The {@link EvaluationResultType} name used in the
+	 *            configuration.
+	 * @return An {@link EvaluationResultType}, or <code>null</code> if the
+	 *         given name does not represent any {@link EvaluationResultType}.
 	 */
 	public static EvaluationResultType toEvaluationResult(String resultName) {
 		EvaluationResultType[] values = EvaluationResultType.values();
@@ -39,8 +40,8 @@ public class Evaluations {
 	}
 
 	/**
-	 * Retrieves a severity represented as an {@link EvaluationResultType}. Severity
-	 * can only be failed or warning.
+	 * Retrieves a severity represented as an {@link EvaluationResultType}.
+	 * Severity can only be failed or warning.
 	 * 
 	 * @param name
 	 *            The severity String representation.

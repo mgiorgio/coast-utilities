@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- 
+deployer@robot-server: b927dace-e6b5-4ca7-9c22-b1d4e3ba4b9f
+registration@market-server: 0dd4f4f5-72ce-40fe-996f-f80700c322f0
+registration@risk-server: 6264c494-b240-43dc-892f-10c7dfbea378
+request@order-router: feb0741f-4b42-4497-9c46-6205a97fe400 (Check computation name here)
+
+ -->
+
 <config>
 	<global>
 		<!-- <start>1</start> -->
@@ -9,10 +17,11 @@
 		<mongo-port>27017</mongo-port>
 		<mongo-db>coast</mongo-db>
 		<mongo-collection>events</mongo-collection>
+		<last-component>trader</last-component>
 	</global>
 
 	<assertions>
-		<pattern severity="failed">
+		<pattern severity="failed" description="A pattern description">
 			<event>
 				<source-island>alice</source-island>
 				<source-islet>x</source-islet>

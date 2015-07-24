@@ -19,4 +19,6 @@ public interface QueryHandler {
 	public QueryResult findOne(EventQuery query);
 
 	public long count(EventQuery query);
+
+	public QueryResult last(EventQuery query, String correlatorKey);
 }
