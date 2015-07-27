@@ -10,23 +10,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import edu.uci.ics.comet.analyzer.evaluation.And;
+import edu.uci.ics.comet.analyzer.evaluation.UnorderedAnd;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
+import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluations;
+import edu.uci.ics.comet.analyzer.evaluation.EventEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
-import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
+import edu.uci.ics.comet.protocol.fields.COMETFields;
 
 /**
  * This class is responsible for reading the XML file and creating all config
@@ -41,6 +45,11 @@ import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
  *
  */
 public class ConfigReader {
+
+	/*
+	 * TODO Evaluations should be receiving their own capture engine instead of
+	 * the root one.
+	 */
 
 	private static Map<String, Object> globals;
 
@@ -66,9 +75,20 @@ public class ConfigReader {
 	public static Evaluation createElements() {
 		readGlobals();
 
+		initEvaluationContext();
+
 		initQueryHandler();
 
 		return createEvaluations();
+	}
+
+	private static void initEvaluationContext() {
+		if (ConfigReader.globals().containsKey("last-component")) {
+			EvaluationContext.put(EvaluationContext.LAST_COMPONENT_KEY, (String) ConfigReader.globals().get("last-component"));
+		}
+
+		String correlationField = (String) ConfigReader.globals().get("correlation-field");
+		EvaluationContext.put(EvaluationContext.CORRELATION_FIELD_KEY, ObjectUtils.defaultIfNull(correlationField, COMETFields.MQ_TIME.getName()));
 	}
 
 	private static void initQueryHandler() {
@@ -83,11 +103,13 @@ public class ConfigReader {
 	private static Evaluation createEvaluations() {
 		Element assertions = root.getChild("assertions");
 
-		And and = new And();
+		UnorderedAnd and = new UnorderedAnd(CaptureEngine.getRootEngine());
 
 		for (Element assertion : assertions.getChildren()) {
 			createEvaluation(assertion, and);
 		}
+
+		and.setQueryHandler(queryHandler);
 
 		return and;
 	}
@@ -95,8 +117,8 @@ public class ConfigReader {
 	private static void createEvaluation(Element assertion, Evaluation parent) {
 		Evaluation evaluation;
 		switch (assertion.getName()) {
-		case "pattern":
-			evaluation = createPattern(assertion);
+		case "sequence":
+			evaluation = createSequence(assertion);
 			break;
 		case "volume":
 			evaluation = createVolume(assertion);
@@ -119,7 +141,7 @@ public class ConfigReader {
 	}
 
 	private static Evaluation createNot(Element assertion) {
-		Not not = new Not();
+		Not not = new Not(CaptureEngine.getRootEngine());
 
 		List<Element> nestedAssertion = assertion.getChildren();
 
@@ -133,7 +155,7 @@ public class ConfigReader {
 	}
 
 	private static Evaluation createAnd(Element andAssertion) {
-		And and = new And();
+		UnorderedAnd and = new UnorderedAnd(CaptureEngine.getRootEngine());
 
 		for (Element assertion : andAssertion.getChildren()) {
 			createEvaluation(assertion, and);
@@ -143,7 +165,7 @@ public class ConfigReader {
 	}
 
 	private static Evaluation createOr(Element orAssertion) {
-		Or or = new Or();
+		Or or = new Or(CaptureEngine.getRootEngine());
 
 		for (Element assertion : orAssertion.getChildren()) {
 			createEvaluation(assertion, or);
@@ -158,7 +180,7 @@ public class ConfigReader {
 		int maxRange = Integer.parseInt(volume.getAttributeValue("maxrange"));
 		TimeUnit timeUnit = getTimeUnit(volume.getAttributeValue("unit"));
 
-		VolumeEvaluation eval = new VolumeEvaluation(timerange, timeUnit, minRange, maxRange);
+		VolumeEvaluation eval = new VolumeEvaluation(timerange, timeUnit, minRange, maxRange, CaptureEngine.getRootEngine());
 
 		configureSeverity(volume, eval);
 
@@ -166,7 +188,7 @@ public class ConfigReader {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			propertiesToMap(event, fields);
 			COMETEvent cometEvent = new COMETEvent(fields);
-			eval.addEvent(cometEvent);
+			// eval.addEvent(cometEvent);
 		}
 
 		return eval;
@@ -184,37 +206,33 @@ public class ConfigReader {
 		}
 	}
 
-	private static Evaluation createPattern(Element pattern) {
-		PatternEvaluation eval = new PatternEvaluation(CaptureEngine.getRootEngine().newEngine());
+	private static Evaluation createSequence(Element sequence) {
+		SequentialEvaluation eval = new SequentialEvaluation(CaptureEngine.getRootEngine().newEngine());
 
 		configureGlobals(eval);
 
-		configureSeverity(pattern, eval);
+		configureSeverity(sequence, eval);
 
-		for (Element event : pattern.getChildren()) {
+		for (Element event : sequence.getChildren()) {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			propertiesToMap(event, fields);
-			COMETEvent cometEvent = new COMETEvent(fields);
-			cometEvent.setDescription(event.getAttributeValue("description"));
-			eval.addEvent(cometEvent);
+			EventEvaluation eventEvaluation = new EventEvaluation(new COMETEvent(fields), queryHandler, CaptureEngine.getRootEngine());
+			eventEvaluation.setDescription(event.getAttributeValue("description"));
+			eval.addNestedEvaluation(eventEvaluation);
 		}
 
 		return eval;
 	}
 
-	private static void configureGlobals(PatternEvaluation eval) {
+	private static void configureGlobals(SequentialEvaluation eval) {
 		eval.setQueryHandler(queryHandler);
-
-		if (ConfigReader.globals().containsKey("last-component")) {
-			eval.setLastComponent((String) ConfigReader.globals().get("last-component"));
-		}
 	}
 
-	private static void configureSeverity(Element pattern, Evaluation eval) {
-		String severityValue = pattern.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
+	private static void configureSeverity(Element sequence, Evaluation eval) {
+		String severityValue = sequence.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
 		EvaluationResultType severity = Evaluations.toEvaluationResult(severityValue);
 		if (severity == null) {
-			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, pattern.getName()));
+			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, sequence.getName()));
 		}
 
 		eval.setConfiguredSeverity(severity);

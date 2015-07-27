@@ -3,6 +3,8 @@
  */
 package edu.uci.ics.comet.analyzer.evaluation;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
+
 /**
  * @author matias
  *
@@ -12,7 +14,8 @@ public class Or extends Evaluation {
 	/**
 	 * 
 	 */
-	public Or() {
+	public Or(CaptureEngine engine) {
+		super(engine);
 	}
 
 	@Override

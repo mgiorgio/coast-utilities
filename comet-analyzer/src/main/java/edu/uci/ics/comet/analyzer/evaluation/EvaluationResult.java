@@ -12,9 +12,19 @@ public class EvaluationResult {
 
 	private List<EvaluationResult> eventResults;
 
+	private long nextCorrelation;
+
 	public EvaluationResult(EvaluationResultType resultType) {
 		this.setResultType(resultType);
 		eventResults = new LinkedList<>();
+	}
+
+	public long getNextCorrelation() {
+		return nextCorrelation;
+	}
+
+	public void setNextCorrelation(long nextCorrelation) {
+		this.nextCorrelation = nextCorrelation;
 	}
 
 	public EvaluationResultType getResultType() {

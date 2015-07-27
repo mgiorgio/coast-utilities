@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class COMETEvent {
 
 	private Map<String, Object> fields;
-	
+
 	private String description;
 
 	public COMETEvent() {

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 
 /**
@@ -25,11 +26,28 @@ public abstract class Evaluation {
 
 	private String description;
 
+	private CaptureEngine captureEngine;
+
+	private long correlateTo;
+
 	/**
 	 * 
 	 */
-	public Evaluation() {
+	public Evaluation(CaptureEngine engine) {
 		nestedEvaluations = new LinkedList<Evaluation>();
+		this.captureEngine = engine;
+	}
+
+	public long getCorrelateTo() {
+		return correlateTo;
+	}
+
+	public void setCorrelateTo(long correlateTo) {
+		this.correlateTo = correlateTo;
+	}
+
+	protected CaptureEngine getCaptureEngine() {
+		return captureEngine;
 	}
 
 	public void addNestedEvaluation(Evaluation evaluation) {

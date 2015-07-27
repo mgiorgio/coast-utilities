@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.mongodb.AbstractMongoTest;
 import edu.uci.ics.comet.generator.EventStream;
 
@@ -45,70 +46,71 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testOneMatchPassPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
 
 		assertEvaluationPasses(eval);
 	}
 
 	@Deprecated
 	public void whenStartIndexIsSetThenItShouldBeConsidered() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
 
 		assertEvaluationFails(eval);
 	}
 
 	@Test
 	public void testMultiMatchPassPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "alice"));
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
-		eval.addEvent(newEvent().put(ISLAND, "alice"));
+		addEvent(eval, newEvent().put(ISLAND, "alice"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "alice"));
 
 		assertEvaluationPasses(eval);
 	}
 
 	@Test
 	public void testOneMatchFailPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "carol"));
+		addEvent(eval, newEvent().put(ISLAND, "carol"));
 
 		assertEvaluationFails(eval);
 	}
 
 	@Test
 	public void testMultiMatchFailPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "alice"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
 
 		assertEvaluationFails(eval);
 	}
 
 	@Test
 	public void testMultiComplexMatchPassPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
-		eval.addEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
-		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
+		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
+		addEvent(eval, newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
+		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
 
 		assertEvaluationPasses(eval);
 	}
 
 	@Test
 	public void testMultiComplexMatchFailPattern() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
-		eval.addEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
-		eval.addEvent(newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
+		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
+		addEvent(eval, newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
+		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-send"));
 
 		assertEvaluationFails(eval);
 	}
@@ -189,14 +191,14 @@ public class TestEvaluations extends AbstractMongoTest {
 	 */
 	@Test
 	public void whenSeverityIsConfiguredThenItShouldReplaceTheNaturalOne() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 		/*
 		 * If an unexpected result is obtained, it should be replaced by
 		 * warning.
 		 */
 		eval.setConfiguredSeverity(EvaluationResultType.WARNING);
 
-		eval.addEvent(newEvent().put(ISLAND, "carol"));
+		addEvent(eval, newEvent().put(ISLAND, "carol"));
 
 		assertEvaluationWarn(eval);
 	}

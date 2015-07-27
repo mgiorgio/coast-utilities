@@ -3,6 +3,8 @@
  */
 package edu.uci.ics.comet.analyzer.evaluation;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
+
 /**
  * @author matias
  *
@@ -15,6 +17,7 @@ public class ExpectedEvaluation extends Evaluation {
 	 * 
 	 */
 	public ExpectedEvaluation(EvaluationResultType resultType) {
+		super(CaptureEngine.getRootEngine());
 		this.resultType = resultType;
 	}
 

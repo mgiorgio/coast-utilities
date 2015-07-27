@@ -1,10 +1,13 @@
 package edu.uci.ics.comet.analyzer.evaluation;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
+
 public class Not extends Evaluation {
 
 	private EvaluationResultType severityOnError;
 
-	public Not() {
+	public Not(CaptureEngine engine) {
+		super(engine);
 	}
 
 	@Override

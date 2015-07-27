@@ -5,11 +5,13 @@ package edu.uci.ics.comet.analyzer.evaluation;
 
 import java.util.concurrent.TimeUnit;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
+
 /**
  * @author matias
  *
  */
-public class VolumeEvaluation extends EventsBasedEvaluation {
+public class VolumeEvaluation extends Evaluation {
 
 	private long timerange;
 
@@ -20,7 +22,8 @@ public class VolumeEvaluation extends EventsBasedEvaluation {
 	/**
 	 * 
 	 */
-	public VolumeEvaluation(long timerange, TimeUnit timeUnit, long minRange, long maxRange) {
+	public VolumeEvaluation(long timerange, TimeUnit timeUnit, long minRange, long maxRange, CaptureEngine engine) {
+		super(engine);
 		this.timerange = timerange;
 		this.timeUnit = timeUnit;
 		this.minRange = minRange;

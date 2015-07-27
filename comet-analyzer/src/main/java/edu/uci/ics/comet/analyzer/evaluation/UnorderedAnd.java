@@ -3,16 +3,19 @@
  */
 package edu.uci.ics.comet.analyzer.evaluation;
 
+import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
+
 /**
  * @author matias
  *
  */
-public class And extends Evaluation {
+public class UnorderedAnd extends Evaluation {
 
 	/**
 	 * 
 	 */
-	public And() {
+	public UnorderedAnd(CaptureEngine engine) {
+		super(engine);
 	}
 
 	@Override
@@ -24,6 +27,7 @@ public class And extends Evaluation {
 		EvaluationResultType result = EvaluationResultType.PASS;
 
 		for (Evaluation eval : this.getNestedEvaluations()) {
+			eval.setCorrelateTo(getCorrelateTo());
 			EvaluationResult nestedResult = eval.evaluate();
 
 			if (nestedResult.getResultType().equals(EvaluationResultType.ERROR)) {
@@ -41,6 +45,6 @@ public class And extends Evaluation {
 
 	@Override
 	public String toString() {
-		return "AND";
+		return "Unordered AND";
 	}
 }

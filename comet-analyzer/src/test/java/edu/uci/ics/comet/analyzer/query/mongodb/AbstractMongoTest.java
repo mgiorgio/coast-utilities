@@ -21,14 +21,16 @@ import com.mongodb.client.MongoDatabase;
 
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.tests.MongodForTestsFactory;
-import edu.uci.ics.comet.analyzer.evaluation.And;
+import edu.uci.ics.comet.analyzer.evaluation.UnorderedAnd;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
+import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
+import edu.uci.ics.comet.analyzer.evaluation.EventEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.ExpectedEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
-import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
@@ -71,9 +73,14 @@ public abstract class AbstractMongoTest {
 	public static void setupClass() {
 		try {
 			embedMongoDB();
+			initEvaluationContext();
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
+	}
+
+	private static void initEvaluationContext() {
+		EvaluationContext.put(EvaluationContext.CORRELATION_FIELD_KEY, COMETFields.MQ_TIME.getName());
 	}
 
 	@Before
@@ -237,24 +244,24 @@ public abstract class AbstractMongoTest {
 	/*
 	 * Utils
 	 */
-	protected PatternEvaluation newPattern() {
-		PatternEvaluation eval = new PatternEvaluation(CaptureEngine.getRootEngine());
+	protected SequentialEvaluation newPattern() {
+		SequentialEvaluation eval = new SequentialEvaluation(CaptureEngine.getRootEngine());
 		eval.setQueryHandler(getQueryHandler());
 		return eval;
 	}
 
 	protected Not newNot() {
-		Not not = new Not();
+		Not not = new Not(CaptureEngine.getRootEngine());
 		not.setQueryHandler(getQueryHandler());
 		return not;
 	}
 
 	protected Evaluation newAnd() {
-		return new And().setQueryHandler(getQueryHandler());
+		return new UnorderedAnd(CaptureEngine.getRootEngine()).setQueryHandler(getQueryHandler());
 	}
 
 	protected Evaluation newOr() {
-		return new Or().setQueryHandler(getQueryHandler());
+		return new Or(CaptureEngine.getRootEngine()).setQueryHandler(getQueryHandler());
 	}
 
 	protected static void assertEval(Evaluation eval, EvaluationResultType expectedResult) {
@@ -263,6 +270,10 @@ public abstract class AbstractMongoTest {
 
 	protected static COMETEvent newEvent() {
 		return new COMETEvent();
+	}
+
+	protected static void addEvent(Evaluation eval, COMETEvent event) {
+		eval.addNestedEvaluation(new EventEvaluation(event, eval.getQueryHandler(), CaptureEngine.getRootEngine()));
 	}
 
 	protected static void assertEvaluationFails(Evaluation eval) {
@@ -291,4 +302,5 @@ public abstract class AbstractMongoTest {
 		nestEvals(composite, nestedEvals);
 		assertEval(composite, expected);
 	}
+
 }
