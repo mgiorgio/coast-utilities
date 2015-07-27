@@ -15,24 +15,25 @@
 		<mongo-db>coast</mongo-db>
 		<mongo-collection>events</mongo-collection>
 		<last-component>trader</last-component>
+		<correlation-field>mq-time</correlation-field>
 	</global>
 
 	<assertions>
-		<pattern
+		<sequence
 			description="Trading Computation is properly deployed and up &amp; running.">
 			<event description="Trader provides a CURL for notifications.">
 				<source-island>trader</source-island>
 				<!-- <source-islet>dispatcher</source-islet> -->
 				<type>curl-new</type>
 				<place>inter</place>
-				<curl-id>$capture</curl-id>
+				<curl-id>$capture:trader-curl</curl-id>
 			</event>
 			<event description="Trader includes its notification CURL.">
 				<source-island>trader</source-island>
 				<!-- <source-islet>dispatcher</source-islet> -->
 				<type>curl-transfer</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:trader-curl</curl-id>
 			</event>
 
 
@@ -57,7 +58,7 @@
 				<source-islet>trader</source-islet>
 				<type>curl-new</type>
 				<place>inter</place>
-				<curl-id>$capture</curl-id>
+				<curl-id>$capture:trader-updates</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server transfers the new CURL (to Market Data Server).">
@@ -65,7 +66,7 @@
 				<source-islet>trader</source-islet>
 				<type>curl-transfer</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:trader-updates</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server sends the new CURL to the Market Data server.">
@@ -82,7 +83,7 @@
 				<source-islet>trader</source-islet>
 				<type>curl-transfer</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:trader-updates</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server sends the new CURL to the Risk Management server.">
@@ -127,7 +128,7 @@
 				<!-- <source-islet>update</source-islet> -->
 				<type>curl-send</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:trader-updates</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server receives update from Market Data Server.">
@@ -135,7 +136,7 @@
 				<source-islet>trader</source-islet>
 				<type>curl-receive</type>
 				<!-- <place>inter</place> -->
-				<curl-id>$last</curl-id>
+				<curl-id>$read:trader-updates</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server creates a CURL for an order">
@@ -143,7 +144,7 @@
 <!-- 				<source-islet>trader</source-islet> -->
 				<type>curl-new</type>
 				<place>inter</place>
-				<curl-id>$capture</curl-id>
+				<curl-id>$capture:new-order</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server transfers the CURL to the Order Router.">
@@ -151,7 +152,7 @@
 				<source-islet>trader</source-islet>
 				<type>curl-transfer</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:new-order</curl-id>
 			</event>
 			<event description="Order Router receives the order.">
 				<source-island>order-router</source-island>
@@ -166,7 +167,7 @@
 				<!-- <source-islet>order-manager</source-islet> -->
 				<type>curl-send</type>
 				<place>inter</place>
-				<curl-id>$last</curl-id>
+				<curl-id>$read:new-order</curl-id>
 			</event>
 			<event
 				description="Trading Computation @ robot-server receives the execution report sent by the Order Router.">
@@ -174,9 +175,9 @@
 <!-- 				<source-islet>trader</source-islet> -->
 				<type>curl-receive</type>
 				<!-- <place>inter</place> -->
-				<curl-id>$last</curl-id>
+				<curl-id>$read:new-order</curl-id>
 			</event>
-		</pattern>
+		</sequence>
 	</assertions>
 
 </config>

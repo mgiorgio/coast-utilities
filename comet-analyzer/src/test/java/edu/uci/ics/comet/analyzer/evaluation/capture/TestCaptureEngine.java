@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
 import edu.uci.ics.comet.analyzer.query.mongodb.AbstractMongoTest;
 import edu.uci.ics.comet.generator.EventStream;
 
@@ -31,22 +31,22 @@ public class TestCaptureEngine extends AbstractMongoTest {
 
 	@Test
 	public void testCaptureAndReadWithDefaultKey() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "$capture"));
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
-		eval.addEvent(newEvent().put(ISLAND, "$read"));
+		addEvent(eval, newEvent().put(ISLAND, "$capture"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "$read"));
 
 		assertEvaluationPasses(eval);
 	}
-	
+
 	@Test
 	public void testCaptureAndReadWithCustomKey() {
-		PatternEvaluation eval = newPattern();
+		SequentialEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "$capture:x"));
-		eval.addEvent(newEvent().put(ISLAND, "bob"));
-		eval.addEvent(newEvent().put(ISLAND, "$read:x"));
+		addEvent(eval, newEvent().put(ISLAND, "$capture:x"));
+		addEvent(eval, newEvent().put(ISLAND, "bob"));
+		addEvent(eval, newEvent().put(ISLAND, "$read:x"));
 
 		assertEvaluationPasses(eval);
 	}

@@ -95,7 +95,8 @@ public class CaptureEngine {
 	}
 
 	public CaptureEngine newEngine() {
-		return new CaptureEngine(this);
+		// return new CaptureEngine(this);
+		return this;
 	}
 
 	public boolean isRootEngine() {
