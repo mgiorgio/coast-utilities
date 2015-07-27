@@ -23,6 +23,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Sorts;
 
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryMember;
@@ -164,7 +165,10 @@ public class MongoQueryHandler implements QueryHandler {
 
 	@Override
 	public QueryResult last(EventQuery query, String correlatorKey) {
-		Document result = collection.find(toBsonFilter(query)).sort(toBsonFilter(new QueryMember(correlatorKey, -1, QueryOperation.EQ))).first();
+		// Document result =
+		// collection.find(toBsonFilter(query)).sort(toBsonFilter(new
+		// QueryMember(correlatorKey, -1, QueryOperation.EQ))).first();
+		Document result = collection.find(toBsonFilter(query)).sort(Sorts.descending(correlatorKey)).first();
 		if (result != null) {
 			return new MongoQueryResult(result);
 		} else {

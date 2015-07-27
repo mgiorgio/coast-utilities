@@ -8,25 +8,27 @@ public class Not extends Evaluation {
 	}
 
 	@Override
-	protected EvaluationResult doTheEvaluation() {
+	protected void doTheEvaluation(EvaluationResult evaluationResult) {
 		EvaluationResult nestedResult = this.getNestedEvaluations().get(0).evaluate();
 
 		switch (nestedResult.getResultType()) {
 		case PASS:
-			return new EvaluationResult(EvaluationResultType.FAILED);
+			evaluationResult.setResultType(EvaluationResultType.FAILED);
+			break;
 		case FAILED:
-			return new EvaluationResult(EvaluationResultType.PASS);
+			evaluationResult.setResultType(EvaluationResultType.PASS);
+			break;
 		case ERROR:
 			if (onErrorRedefined()) {
-				EvaluationResult result = new EvaluationResult(this.severityOnError);
+				evaluationResult.setResultType(this.severityOnError);
 				// Keep exception.
-				result.setExceptionIfError(nestedResult.getExceptionIfError());
-				return result;
+				evaluationResult.setExceptionIfError(nestedResult.getExceptionIfError());
 			} else {
-				return nestedResult;
+				evaluationResult.setResultType(nestedResult.getResultType());
 			}
+			break;
 		default:
-			return nestedResult;
+			evaluationResult.setResultType(nestedResult.getResultType());
 		}
 	}
 

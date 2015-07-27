@@ -30,12 +30,23 @@ public class TestCaptureEngine extends AbstractMongoTest {
 	}
 
 	@Test
-	public void testUsingCaptureAndLast() {
+	public void testCaptureAndReadWithDefaultKey() {
 		PatternEvaluation eval = newPattern();
 
-		eval.addEvent(newEvent().put(ISLAND, "$capture").put(EVENT_TYPE, "$capture"));
-		eval.addEvent(newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "$last"));
-		eval.addEvent(newEvent().put(ISLAND, "$last"));
+		eval.addEvent(newEvent().put(ISLAND, "$capture"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "$read"));
+
+		assertEvaluationPasses(eval);
+	}
+	
+	@Test
+	public void testCaptureAndReadWithCustomKey() {
+		PatternEvaluation eval = newPattern();
+
+		eval.addEvent(newEvent().put(ISLAND, "$capture:x"));
+		eval.addEvent(newEvent().put(ISLAND, "bob"));
+		eval.addEvent(newEvent().put(ISLAND, "$read:x"));
 
 		assertEvaluationPasses(eval);
 	}

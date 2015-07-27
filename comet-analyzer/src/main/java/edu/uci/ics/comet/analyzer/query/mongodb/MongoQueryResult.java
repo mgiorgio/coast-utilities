@@ -31,4 +31,9 @@ public class MongoQueryResult implements QueryResult {
 	public String toString() {
 		return document.toString();
 	}
+
+	@Override
+	public Object get(String key) {
+		return document.get(key);
+	}
 }

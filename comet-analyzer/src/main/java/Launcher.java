@@ -16,6 +16,8 @@ import edu.uci.ics.comet.analyzer.evaluation.EvaluationsManager;
  */
 public class Launcher {
 
+	private static final String DEFAULT_EVENTS_FILE = "eventsprocessing.xml";
+
 	/**
 	 * 
 	 */
@@ -27,7 +29,7 @@ public class Launcher {
 	 */
 	public static void main(String[] args) {
 		try {
-			ConfigReader.init();
+			ConfigReader.init(getFilepath(args));
 			Evaluation evaluation = ConfigReader.createElements();
 
 			EvaluationsManager evaluationsManager = new EvaluationsManager();
@@ -39,6 +41,13 @@ public class Launcher {
 		} finally {
 			ConfigReader.shutdown();
 		}
+	}
 
+	private static String getFilepath(String[] args) {
+		if (args.length > 0) {
+			return args[0];
+		} else {
+			return DEFAULT_EVENTS_FILE;
+		}
 	}
 }

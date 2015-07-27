@@ -7,4 +7,6 @@ public interface QueryResult {
 	public Integer getInteger(String key);
 
 	public Long getLong(String key);
+
+	public Object get(String key);
 }

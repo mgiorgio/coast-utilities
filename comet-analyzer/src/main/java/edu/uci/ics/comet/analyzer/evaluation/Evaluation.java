@@ -67,12 +67,14 @@ public abstract class Evaluation {
 	}
 
 	public EvaluationResult evaluate() {
+		this.setResult(new EvaluationResult(EvaluationResultType.UNKNOWN));
 		try {
-			this.setResult(this.doTheEvaluation());
+			this.doTheEvaluation(getResult());
 			adaptResultIfItIsUnexpected(getResult());
 		} catch (Exception e) {
-			this.setResult(new EvaluationResult(EvaluationResultType.ERROR));
+			this.getResult().setResultType(EvaluationResultType.ERROR);
 			this.getResult().setExceptionIfError(e);
+			this.getResult().addEventResult(new EvaluationResult(EvaluationResultType.ERROR).setExceptionIfError(e));
 		}
 		return this.getResult();
 	}
@@ -100,5 +102,5 @@ public abstract class Evaluation {
 		this.description = description;
 	}
 
-	protected abstract EvaluationResult doTheEvaluation();
+	protected abstract void doTheEvaluation(EvaluationResult evaluationResult);
 }

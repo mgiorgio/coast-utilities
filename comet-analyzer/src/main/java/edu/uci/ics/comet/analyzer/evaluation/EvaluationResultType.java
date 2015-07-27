@@ -28,7 +28,7 @@ package edu.uci.ics.comet.analyzer.evaluation;
  */
 public enum EvaluationResultType {
 
-	PASS("passed"), WARNING("warning"), FAILED("failed"), ERROR("error");
+	PASS("passed"), WARNING("warning"), FAILED("failed"), ERROR("error"), UNKNOWN("unknown");
 
 	private String name;
 

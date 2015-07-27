@@ -16,7 +16,7 @@ public class Or extends Evaluation {
 	}
 
 	@Override
-	protected EvaluationResult doTheEvaluation() {
+	protected void doTheEvaluation(EvaluationResult evaluationResult) {
 		/*
 		 * The following algorithm could be abstracted away here and in And and
 		 * solved using an priority-based list.
@@ -27,7 +27,8 @@ public class Or extends Evaluation {
 			EvaluationResult nestedResult = eval.evaluate();
 
 			if (nestedResult.getResultType().equals(EvaluationResultType.PASS)) {
-				return new EvaluationResult(EvaluationResultType.PASS);
+				evaluationResult.setResultType(EvaluationResultType.PASS);
+				return;
 			} else if (nestedResult.getResultType().equals(EvaluationResultType.WARNING) && !result.equals(EvaluationResultType.PASS)) {
 				result = EvaluationResultType.WARNING;
 			} else if (nestedResult.getResultType().equals(EvaluationResultType.FAILED) && !result.equals(EvaluationResultType.WARNING)) {
@@ -37,7 +38,7 @@ public class Or extends Evaluation {
 			}
 		}
 
-		return new EvaluationResult(result);
+		evaluationResult.setResultType(result);
 	}
 
 	@Override

@@ -33,4 +33,8 @@
   <root level="ERROR">
     <appender-ref ref="file" />
   </root>
+  
+	<logger name="edu.uci.ics.comet.analyzer.evaluation.PatternEvaluation"
+		level="DEBUG" />
+  
 </configuration>

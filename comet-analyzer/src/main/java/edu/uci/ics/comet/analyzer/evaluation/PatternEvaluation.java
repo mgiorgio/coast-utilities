@@ -5,6 +5,9 @@ package edu.uci.ics.comet.analyzer.evaluation;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
@@ -23,6 +26,8 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 	private CaptureEngine captureEngine;
 
 	private Long startTime;
+
+	private static final Logger log = LoggerFactory.getLogger(PatternEvaluation.class);
 
 	/**
 	 * 
@@ -43,6 +48,7 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 		 */
 
 		EventQuery query = new EventQuery().addMember(COMETFields.SOURCE_ISLAND.getName(), getLastComponent(), QueryOperation.EQ);
+		query.addMember(COMETFields.TYPE.getName(), "island-start", QueryOperation.EQ);
 		QueryResult queryResult = getQueryHandler().last(query, CORRELATION_FIELD);
 
 		if (queryResult != null) {
@@ -51,7 +57,8 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 	}
 
 	@Override
-	protected EvaluationResult doTheEvaluation() {
+	protected void doTheEvaluation(EvaluationResult evaluationResult) {
+		log.info("Starting Pattern evaluation...");
 		Long correlator = null;
 
 		QueryHandler queryHandler = getQueryHandler();
@@ -67,24 +74,33 @@ public class PatternEvaluation extends EventsBasedEvaluation {
 			if (correlator != null) {
 				// It isn't the 1st event, then the current event must have come
 				// later than the previous one.
-				query.addMember(CORRELATION_FIELD, correlator, QueryOperation.GT);
+				query.addMember(CORRELATION_FIELD, correlator, QueryOperation.GE);
 			}
 
 			// Run Query.
+			log.debug("Running query {}", query);
 			Iterator<QueryResult> iterator = queryHandler.iterator(query);
 			if (iterator.hasNext()) {
 				// Alright!
 				QueryResult result = iterator.next();
+				log.debug("Result found: {}", result);
 
 				correlator = Long.parseLong(result.getLong(CORRELATION_FIELD).toString());
 
 				captureEngine.processQueryResult(event, result);
+
+				evaluationResult.addEventResult(new EvaluationResult(EvaluationResultType.PASS));
 			} else {
-				return new EvaluationResult(EvaluationResultType.FAILED);
+				log.debug("No results were found.");
+				evaluationResult.addEventResult(new EvaluationResult(EvaluationResultType.FAILED));
+				evaluationResult.setResultType(EvaluationResultType.FAILED);
+				log.info("Pattern evaluation FAILED.");
+				return;
 			}
 		}
 
-		return new EvaluationResult(EvaluationResultType.PASS);
+		log.info("Pattern evaluation PASSED.");
+		evaluationResult.setResultType(EvaluationResultType.PASS);
 	}
 
 	@Override

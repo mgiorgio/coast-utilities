@@ -44,9 +44,8 @@ public class VolumeEvaluation extends EventsBasedEvaluation {
 	}
 
 	@Override
-	protected EvaluationResult doTheEvaluation() {
+	protected void doTheEvaluation(EvaluationResult evaluationResult) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class COMETEvent {
 
 	private Map<String, Object> fields;
+	
+	private String description;
 
 	public COMETEvent() {
 		this.fields = new HashMap<>();
@@ -31,5 +33,13 @@ public class COMETEvent {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(fields);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

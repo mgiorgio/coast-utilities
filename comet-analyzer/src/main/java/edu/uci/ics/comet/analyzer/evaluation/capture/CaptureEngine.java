@@ -1,8 +1,6 @@
 package edu.uci.ics.comet.analyzer.evaluation.capture;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,11 +9,19 @@ import edu.uci.ics.comet.analyzer.query.QueryResult;
 
 public class CaptureEngine {
 
+	public static final String CAPTURE_PREFIX = "$capture";
+
+	public static final String READ_PREFIX = "$read";
+
 	private CaptureEngine parent;
 
 	private static CaptureEngine rootEngine;
 
 	private Map<String, Object> captureTable;
+
+	public static final String DEFAULT_CAPTURE_KEY = "default";
+
+	private static final String KEY_VALUE_SEP = ":";
 
 	static {
 		rootEngine = new CaptureEngine();
@@ -37,37 +43,45 @@ public class CaptureEngine {
 	public void processQueryResult(COMETEvent event, QueryResult result) {
 		for (Entry<String, Object> entry : event.getFields().entrySet()) {
 			String value = entry.getValue().toString();
-			if (value.startsWith("$capture")) {
-				captureTable.put(entry.getKey(), result.getString(entry.getKey()));
+			if (value.startsWith(CAPTURE_PREFIX)) {
+				handleCapture(value, result, entry);
 			}
 		}
+	}
+
+	private Object handleCapture(String action, QueryResult result, Entry<String, Object> entry) {
+		String captureKey = DEFAULT_CAPTURE_KEY;
+
+		if (action.contains(KEY_VALUE_SEP)) {
+			captureKey = action.substring(action.indexOf(KEY_VALUE_SEP) + 1);
+		}
+
+		return captureTable.put(captureKey, result.get(entry.getKey()).toString());
 	}
 
 	public Map<String, Object> prepareQuery(Map<String, Object> fields) {
 		Map<String, Object> replacedFields = new HashMap<>(fields);
 
-		Collection<String> captureKeys = new LinkedList<>();
-
 		for (Entry<String, Object> entry : fields.entrySet()) {
 			String value = entry.getValue().toString();
-			if (value.startsWith("$capture")) {
-				// captureKeys.add(entry.getKey());
+			if (value.startsWith(CAPTURE_PREFIX)) {
 				replacedFields.remove(entry.getKey());
-			} else if (value.startsWith("$")) {
-				replacedFields.put(entry.getKey(), replace(entry.getKey(), fields));
+			} else if (value.startsWith(READ_PREFIX)) {
+				replacedFields.put(entry.getKey(), read(value, fields));
 			}
 		}
 
 		return replacedFields;
 	}
 
-	private Object replace(String key, Map<String, Object> fields) {
-		switch (fields.get(key).toString()) {
-		case "$last":
-			return retrieveElement(key, fields);
-		default:
-			return fields.get(key);
+	private Object read(String readAction, Map<String, Object> fields) {
+		String readKey = DEFAULT_CAPTURE_KEY;
+
+		if (readAction.contains(KEY_VALUE_SEP)) {
+			readKey = readAction.substring(readAction.indexOf(KEY_VALUE_SEP) + 1);
 		}
+
+		return retrieveElement(readKey, fields);
 	}
 
 	private Object retrieveElement(String key, Map<String, Object> fields) {

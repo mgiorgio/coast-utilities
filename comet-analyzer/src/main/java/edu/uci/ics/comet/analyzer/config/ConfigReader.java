@@ -44,8 +44,6 @@ public class ConfigReader {
 
 	private static Map<String, Object> globals;
 
-	public static final String CONFIG_PATH = "eventsprocessing.xml";
-
 	private static Element root;
 
 	private static QueryHandler queryHandler;
@@ -55,12 +53,12 @@ public class ConfigReader {
 	 * @throws JDOMException
 	 * 
 	 */
-	public static void init() throws IOException, JDOMException {
+	public static void init(String filepath) throws IOException, JDOMException {
 		globals = new HashMap<String, Object>();
 
 		SAXBuilder jdomBuilder = new SAXBuilder();
 
-		Document jdomDoc = jdomBuilder.build(CONFIG_PATH);
+		Document jdomDoc = jdomBuilder.build(filepath);
 
 		root = jdomDoc.getRootElement();
 	}
@@ -80,11 +78,6 @@ public class ConfigReader {
 
 	public static void shutdown() {
 		queryHandler.shutdown();
-	}
-
-	public static void main(String[] args) throws IOException, JDOMException {
-		ConfigReader.init();
-		ConfigReader.createElements();
 	}
 
 	private static Evaluation createEvaluations() {
@@ -202,6 +195,7 @@ public class ConfigReader {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			propertiesToMap(event, fields);
 			COMETEvent cometEvent = new COMETEvent(fields);
+			cometEvent.setDescription(event.getAttributeValue("description"));
 			eval.addEvent(cometEvent);
 		}
 

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 public class EventQuery {
 
 	private List<QueryMember> queryMembers;
@@ -131,6 +129,12 @@ public class EventQuery {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(queryMembers);
+		StringBuilder builder = new StringBuilder();
+
+		for (QueryMember queryMember : queryMembers) {
+			builder.append(queryMember).append(", ");
+		}
+
+		return builder.toString();
 	}
 }

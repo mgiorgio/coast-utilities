@@ -24,8 +24,8 @@ public class ExpectedEvaluation extends Evaluation {
 	 * @see edu.uci.ics.comet.analyzer.evaluation.Evaluation#doTheEvaluation()
 	 */
 	@Override
-	protected EvaluationResult doTheEvaluation() {
-		return new EvaluationResult(resultType);
+	protected void doTheEvaluation(EvaluationResult evaluationResult) {
+		evaluationResult.setResultType(resultType);
 	}
 
 }
