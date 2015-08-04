@@ -36,6 +36,7 @@ public abstract class Evaluation {
 	public Evaluation(CaptureEngine engine) {
 		nestedEvaluations = new LinkedList<Evaluation>();
 		this.captureEngine = engine;
+		result = new EvaluationResult(EvaluationResultType.UNKNOWN);
 	}
 
 	public long getCorrelateTo() {

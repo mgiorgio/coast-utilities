@@ -49,6 +49,7 @@ public class SequentialEvaluation extends Evaluation {
 			} else if (EvaluationResultType.ERROR.equals(result.getResultType())) {
 				log.info("Sequence evaluation ERROR.");
 				evaluationResult.setResultType(EvaluationResultType.ERROR);
+				return;
 			}
 
 			correlator = result.getNextCorrelation();

@@ -43,26 +43,7 @@ public class EvaluationsManager {
 	}
 
 	private void printNested(Evaluation eval, int depth) {
-		System.out.println(
-				String.format("%sEvaluating %s. Result: %s. Description: %s", StringUtils.repeat(" ", depth * 4), eval, eval.getResult(), ObjectUtils.defaultIfNull(eval.getDescription(), "N/A")));
-
-//		List<EvaluationResult> eventResults = eval.getResult().getEventResults();
-
-		// if (eval instanceof BlockEvaluation) {
-		//
-		// BlockEvaluation ebEval = (BlockEvaluation) eval;
-		//
-		// int i = 0;
-		// for (EvaluationResult evaluationResult : eventResults) {
-		// System.out.println(String.format("%s#%3s - [Result: %s. Event: %s.
-		// Exception: %s]", StringUtils.repeat(" ", (depth + 1) * 4), i,
-		// evaluationResult.getResultType(),
-		// ebEval.getCOMETEvents().get(i).getDescription(),
-		// ObjectUtils.defaultIfNull(evaluationResult.getExceptionIfError(),
-		// "N/A")));
-		// i++;
-		// }
-		// }
+		System.out.printf("%sEvaluating %s. Result: %s. Description: %s\n", StringUtils.repeat(" ", depth * 4), eval, eval.getResult(), ObjectUtils.defaultIfNull(eval.getDescription(), "N/A"));
 
 		List<Evaluation> nestedEvaluations = eval.getNestedEvaluations();
 

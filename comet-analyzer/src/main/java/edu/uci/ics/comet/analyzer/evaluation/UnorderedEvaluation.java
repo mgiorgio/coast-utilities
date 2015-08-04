@@ -9,12 +9,12 @@ import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
  * @author matias
  *
  */
-public class UnorderedAnd extends Evaluation {
+public class UnorderedEvaluation extends Evaluation {
 
 	/**
 	 * 
 	 */
-	public UnorderedAnd(CaptureEngine engine) {
+	public UnorderedEvaluation(CaptureEngine engine) {
 		super(engine);
 	}
 
@@ -25,10 +25,15 @@ public class UnorderedAnd extends Evaluation {
 		 * solved using an priority-based list.
 		 */
 		EvaluationResultType result = EvaluationResultType.PASS;
+		evaluationResult.setNextCorrelation(getCorrelateTo());
 
 		for (Evaluation eval : this.getNestedEvaluations()) {
 			eval.setCorrelateTo(getCorrelateTo());
 			EvaluationResult nestedResult = eval.evaluate();
+
+			if (nestedResult.getNextCorrelation() > evaluationResult.getNextCorrelation()) {
+				evaluationResult.setNextCorrelation(nestedResult.getNextCorrelation());
+			}
 
 			if (nestedResult.getResultType().equals(EvaluationResultType.ERROR)) {
 				evaluationResult.setResultType(EvaluationResultType.ERROR);
@@ -45,6 +50,6 @@ public class UnorderedAnd extends Evaluation {
 
 	@Override
 	public String toString() {
-		return "Unordered AND";
+		return "Unordered";
 	}
 }

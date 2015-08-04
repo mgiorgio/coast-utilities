@@ -21,7 +21,7 @@ import com.mongodb.client.MongoDatabase;
 
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.tests.MongodForTestsFactory;
-import edu.uci.ics.comet.analyzer.evaluation.UnorderedAnd;
+import edu.uci.ics.comet.analyzer.evaluation.UnorderedEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
@@ -244,7 +244,7 @@ public abstract class AbstractMongoTest {
 	/*
 	 * Utils
 	 */
-	protected SequentialEvaluation newPattern() {
+	protected SequentialEvaluation newSequential() {
 		SequentialEvaluation eval = new SequentialEvaluation(CaptureEngine.getRootEngine());
 		eval.setQueryHandler(getQueryHandler());
 		return eval;
@@ -256,8 +256,8 @@ public abstract class AbstractMongoTest {
 		return not;
 	}
 
-	protected Evaluation newAnd() {
-		return new UnorderedAnd(CaptureEngine.getRootEngine()).setQueryHandler(getQueryHandler());
+	protected Evaluation newUnordered() {
+		return new UnorderedEvaluation(CaptureEngine.getRootEngine()).setQueryHandler(getQueryHandler());
 	}
 
 	protected Evaluation newOr() {

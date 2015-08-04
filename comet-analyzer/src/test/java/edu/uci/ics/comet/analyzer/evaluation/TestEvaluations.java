@@ -34,19 +34,19 @@ public class TestEvaluations extends AbstractMongoTest {
 	}
 
 	/*
-	 * Pattern Evaluation.
+	 * Sequential Evaluation.
 	 */
 
 	@Test
 	public void testEmptyPattern() {
-		Evaluation eval = newPattern();
+		Evaluation eval = newSequential();
 
 		assertEvaluationPasses(eval);
 	}
 
 	@Test
 	public void testOneMatchPassPattern() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "bob"));
 
@@ -55,7 +55,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Deprecated
 	public void whenStartIndexIsSetThenItShouldBeConsidered() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "bob"));
 
@@ -64,7 +64,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiMatchPassPattern() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "alice"));
 		addEvent(eval, newEvent().put(ISLAND, "bob"));
@@ -75,7 +75,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testOneMatchFailPattern() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "carol"));
 
@@ -84,7 +84,7 @@ public class TestEvaluations extends AbstractMongoTest {
 
 	@Test
 	public void testMultiMatchFailPattern() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "bob"));
 		addEvent(eval, newEvent().put(ISLAND, "alice"));
@@ -94,8 +94,8 @@ public class TestEvaluations extends AbstractMongoTest {
 	}
 
 	@Test
-	public void testMultiComplexMatchPassPattern() {
-		SequentialEvaluation eval = newPattern();
+	public void testMultiEventsMultiFieldsMatchPassPattern() {
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
 		addEvent(eval, newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-new"));
@@ -105,8 +105,8 @@ public class TestEvaluations extends AbstractMongoTest {
 	}
 
 	@Test
-	public void testMultiComplexMatchFailPattern() {
-		SequentialEvaluation eval = newPattern();
+	public void testMultiEventMultiFieldMatchFailPattern() {
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "alice").put(EVENT_TYPE, "curl-new"));
 		addEvent(eval, newEvent().put(ISLAND, "bob").put(EVENT_TYPE, "curl-send"));
@@ -116,22 +116,22 @@ public class TestEvaluations extends AbstractMongoTest {
 	}
 
 	/*
-	 * AND Evaluation.
+	 * Unordered Evaluation.
 	 */
 
 	@Test
-	public void whenAllEvalsPassThenANDEvalShouldPass() {
-		assertEvalWith(newAnd(), EvaluationResultType.PASS, PASS_EVAL, PASS_EVAL);
+	public void whenAllEvalsPassThenUnorderedEvalShouldPass() {
+		assertEvalWith(newUnordered(), EvaluationResultType.PASS, PASS_EVAL, PASS_EVAL);
 	}
 
 	@Test
-	public void whenOneEvalFailsAndNoErrorsThenANDEvalShouldFail() {
-		assertEvalWith(newAnd(), EvaluationResultType.FAILED, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
+	public void whenOneEvalFailsAndNoErrorsThenUnorderedEvalShouldFail() {
+		assertEvalWith(newUnordered(), EvaluationResultType.FAILED, PASS_EVAL, WARN_EVAL, FAILED_EVAL);
 	}
 
 	@Test
-	public void whenOneErrorThenAndEvalShouldError() {
-		assertEvalWith(newAnd(), EvaluationResultType.ERROR, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
+	public void whenOneErrorThenUnorderedEvalShouldError() {
+		assertEvalWith(newUnordered(), EvaluationResultType.ERROR, PASS_EVAL, WARN_EVAL, ERROR_EVAL, FAILED_EVAL);
 	}
 
 	/*
@@ -153,7 +153,7 @@ public class TestEvaluations extends AbstractMongoTest {
 	@Test
 	public void whenMoreThanOneEvalIsNestedToNOTThenItShouldThrowRuntimeException() {
 		try {
-			nestEvals(newNot(), newPattern(), newPattern());
+			nestEvals(newNot(), newSequential(), newSequential());
 			Assert.fail("Nesting more than one element should have thrown RuntimeException.");
 		} catch (RuntimeException e) {
 			// Code is OK.
@@ -191,7 +191,7 @@ public class TestEvaluations extends AbstractMongoTest {
 	 */
 	@Test
 	public void whenSeverityIsConfiguredThenItShouldReplaceTheNaturalOne() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 		/*
 		 * If an unexpected result is obtained, it should be replaced by
 		 * warning.

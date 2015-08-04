@@ -51,7 +51,6 @@
 				<curl-id>b927dace-e6b5-4ca7-9c22-b1d4e3ba4b9f</curl-id>
 			</event>
 
-
 			<event
 				description="Trading Computation @ robot-server creates a new CURL to be sent to Risk and Market Data servers.">
 				<source-island>robot-server</source-island>
@@ -60,88 +59,93 @@
 				<place>inter</place>
 				<curl-id>$capture:trader-updates</curl-id>
 			</event>
-			<event
-				description="Trading Computation @ robot-server transfers the new CURL (to Market Data Server).">
-				<source-island>robot-server</source-island>
-				<source-islet>trader</source-islet>
-				<type>curl-transfer</type>
-				<place>inter</place>
-				<curl-id>$read:trader-updates</curl-id>
-			</event>
-			<event
-				description="Trading Computation @ robot-server sends the new CURL to the Market Data server.">
-				<source-island>robot-server</source-island>
-				<source-islet>trader</source-islet>
-				<type>curl-send</type>
-				<place>inter</place>
-				<curl-id>0dd4f4f5-72ce-40fe-996f-f80700c322f0</curl-id>
-			</event>
 
-			<event
-				description="Trading Computation @ robot-server transfers the new CURL (to Risk Server)">
-				<source-island>robot-server</source-island>
-				<source-islet>trader</source-islet>
-				<type>curl-transfer</type>
-				<place>inter</place>
-				<curl-id>$read:trader-updates</curl-id>
-			</event>
-			<event
-				description="Trading Computation @ robot-server sends the new CURL to the Risk Management server.">
-				<source-island>robot-server</source-island>
-				<source-islet>trader</source-islet>
-				<type>curl-send</type>
-				<place>inter</place>
-				<curl-id>6264c494-b240-43dc-892f-10c7dfbea378</curl-id>
-			</event>
+			<unordered description="Registration @ Market Data and Risk servers.">
+				<sequence description="Registration @ Market Data Server.">
+					<event
+						description="Trading Computation @ robot-server transfers the new CURL (to Market Data Server).">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-transfer</type>
+						<place>inter</place>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
+					<event
+						description="Trading Computation @ robot-server sends the new CURL to the Market Data server.">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-send</type>
+						<place>inter</place>
+						<curl-id>0dd4f4f5-72ce-40fe-996f-f80700c322f0</curl-id>
+					</event>
+					<event description="Market Data server receives the new CURL.">
+						<source-island>market-server</source-island>
+						<source-islet>server.registration</source-islet>
+						<type>curl-receive</type>
+						<curl-id>0dd4f4f5-72ce-40fe-996f-f80700c322f0</curl-id>
+					</event>
+					<event description="Market Data Server sends update.">
+						<source-island>market-server</source-island>
+						<!-- <source-islet>update</source-islet> -->
+						<type>curl-send</type>
+						<place>inter</place>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
+					<event
+						description="Trading Computation @ robot-server receives update from Market Data Server.">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-receive</type>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
 
-			<event description="Market Data server receives the new CURL.">
-				<source-island>market-server</source-island>
-				<source-islet>server.registration</source-islet>
-				<type>curl-receive</type>
-				<curl-id>0dd4f4f5-72ce-40fe-996f-f80700c322f0</curl-id>
-			</event>
+				</sequence>
+				<sequence description="Registration @ Risk Server">
+					<event
+						description="Trading Computation @ robot-server transfers the new CURL (to Risk Server)">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-transfer</type>
+						<place>inter</place>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
+					<event
+						description="Trading Computation @ robot-server sends the new CURL to the Risk Management server.">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-send</type>
+						<place>inter</place>
+						<curl-id>6264c494-b240-43dc-892f-10c7dfbea378</curl-id>
+					</event>
 
-			<event description="Risk Management Server receives the new CURL.">
-				<source-island>risk-server</source-island>
-				<source-islet>server.registration</source-islet>
-				<type>curl-receive</type>
-				<curl-id>6264c494-b240-43dc-892f-10c7dfbea378</curl-id>
-			</event>
-			<!-- <event description="Risk Server sends update."> -->
-			<!-- <source-island>risk</source-island> -->
-			<!-- <source-islet>update</source-islet> -->
-			<!-- <type>curl-send</type> -->
-			<!-- <place>inter</place> -->
-			<!-- <curl-id>$last</curl-id> -->
-			<!-- </event> -->
-			<!-- <event -->
-			<!-- description="Trading Computation @ robot-server receives update from 
-				Risk Server."> -->
-			<!-- <source-island>robot-server</source-island> -->
-			<!-- <source-islet>trader</source-islet> -->
-			<!-- <type>curl-receive</type> -->
-			<!-- <place>inter</place> -->
-			<!-- <curl-id>$last</curl-id> -->
-			<!-- </event> -->
-			<event description="Market Data Server sends update.">
-				<source-island>market-server</source-island>
-				<!-- <source-islet>update</source-islet> -->
-				<type>curl-send</type>
-				<place>inter</place>
-				<curl-id>$read:trader-updates</curl-id>
-			</event>
-			<event
-				description="Trading Computation @ robot-server receives update from Market Data Server.">
-				<source-island>robot-server</source-island>
-				<source-islet>trader</source-islet>
-				<type>curl-receive</type>
-				<!-- <place>inter</place> -->
-				<curl-id>$read:trader-updates</curl-id>
-			</event>
+					<event description="Risk Management Server receives the new CURL.">
+						<source-island>risk-server</source-island>
+						<source-islet>server.registration</source-islet>
+						<type>curl-receive</type>
+						<curl-id>6264c494-b240-43dc-892f-10c7dfbea378</curl-id>
+					</event>
+					
+					<event description="Risk Server sends update.">
+						<source-island>risk-server</source-island>
+<!-- 						<source-islet>update</source-islet> -->
+						<type>curl-send</type>
+						<place>inter</place>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
+					<event
+						description="Trading Computation @ robot-server receives update from Risk Server.">
+						<source-island>robot-server</source-island>
+						<source-islet>trader</source-islet>
+						<type>curl-receive</type>
+						<curl-id>$read:trader-updates</curl-id>
+					</event>
+				</sequence>
+			</unordered>
+
 			<event
 				description="Trading Computation @ robot-server creates a CURL for an order">
 				<source-island>robot-server</source-island>
-<!-- 				<source-islet>trader</source-islet> -->
+				<!-- <source-islet>trader</source-islet> -->
 				<type>curl-new</type>
 				<place>inter</place>
 				<curl-id>$capture:new-order</curl-id>
@@ -172,9 +176,8 @@
 			<event
 				description="Trading Computation @ robot-server receives the execution report sent by the Order Router.">
 				<source-island>robot-server</source-island>
-<!-- 				<source-islet>trader</source-islet> -->
+				<!-- <source-islet>trader</source-islet> -->
 				<type>curl-receive</type>
-				<!-- <place>inter</place> -->
 				<curl-id>$read:new-order</curl-id>
 			</event>
 		</sequence>

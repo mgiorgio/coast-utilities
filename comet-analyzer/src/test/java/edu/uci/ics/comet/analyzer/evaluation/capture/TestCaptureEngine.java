@@ -31,7 +31,7 @@ public class TestCaptureEngine extends AbstractMongoTest {
 
 	@Test
 	public void testCaptureAndReadWithDefaultKey() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "$capture"));
 		addEvent(eval, newEvent().put(ISLAND, "bob"));
@@ -42,7 +42,7 @@ public class TestCaptureEngine extends AbstractMongoTest {
 
 	@Test
 	public void testCaptureAndReadWithCustomKey() {
-		SequentialEvaluation eval = newPattern();
+		SequentialEvaluation eval = newSequential();
 
 		addEvent(eval, newEvent().put(ISLAND, "$capture:x"));
 		addEvent(eval, newEvent().put(ISLAND, "bob"));

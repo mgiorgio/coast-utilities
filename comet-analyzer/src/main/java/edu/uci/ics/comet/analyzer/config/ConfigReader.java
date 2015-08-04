@@ -16,7 +16,6 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import edu.uci.ics.comet.analyzer.evaluation.UnorderedAnd;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
@@ -26,6 +25,7 @@ import edu.uci.ics.comet.analyzer.evaluation.EventEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.UnorderedEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
@@ -103,18 +103,22 @@ public class ConfigReader {
 	private static Evaluation createEvaluations() {
 		Element assertions = root.getChild("assertions");
 
-		UnorderedAnd and = new UnorderedAnd(CaptureEngine.getRootEngine());
+		if (assertions.getChildren().size() == 1) {
+			return createEvaluation(assertions.getChildren().get(0), null);
+		} else {
+			UnorderedEvaluation unordered = new UnorderedEvaluation(CaptureEngine.getRootEngine());
 
-		for (Element assertion : assertions.getChildren()) {
-			createEvaluation(assertion, and);
+			for (Element assertion : assertions.getChildren()) {
+				createEvaluation(assertion, unordered);
+			}
+
+			unordered.setQueryHandler(queryHandler);
+
+			return unordered;
 		}
-
-		and.setQueryHandler(queryHandler);
-
-		return and;
 	}
 
-	private static void createEvaluation(Element assertion, Evaluation parent) {
+	private static Evaluation createEvaluation(Element assertion, Evaluation parent) {
 		Evaluation evaluation;
 		switch (assertion.getName()) {
 		case "sequence":
@@ -126,18 +130,30 @@ public class ConfigReader {
 		case "or":
 			evaluation = createOr(assertion);
 			break;
-		case "and":
+		case "unordered":
 			evaluation = createAnd(assertion);
 			break;
 		case "not":
 			evaluation = createNot(assertion);
 			break;
+		case "event":
+			evaluation = createEvent(assertion);
+			break;
 		default:
-			return;
+			throw new IllegalArgumentException(assertion.getName() + " is not a valid evaluation type.");
 		}
 
 		evaluation.setDescription(assertion.getAttributeValue("description"));
-		parent.addNestedEvaluation(evaluation);
+
+		evaluation.setQueryHandler(queryHandler);
+
+		configureSeverity(assertion, evaluation);
+
+		if (parent != null) {
+			parent.addNestedEvaluation(evaluation);
+		}
+
+		return evaluation;
 	}
 
 	private static Evaluation createNot(Element assertion) {
@@ -155,11 +171,9 @@ public class ConfigReader {
 	}
 
 	private static Evaluation createAnd(Element andAssertion) {
-		UnorderedAnd and = new UnorderedAnd(CaptureEngine.getRootEngine());
+		UnorderedEvaluation and = new UnorderedEvaluation(CaptureEngine.getRootEngine());
 
-		for (Element assertion : andAssertion.getChildren()) {
-			createEvaluation(assertion, and);
-		}
+		createChildrenEvaluations(andAssertion, and);
 
 		return and;
 	}
@@ -167,11 +181,15 @@ public class ConfigReader {
 	private static Evaluation createOr(Element orAssertion) {
 		Or or = new Or(CaptureEngine.getRootEngine());
 
-		for (Element assertion : orAssertion.getChildren()) {
-			createEvaluation(assertion, or);
-		}
+		createChildrenEvaluations(orAssertion, or);
 
 		return or;
+	}
+
+	private static void createChildrenEvaluations(Element evalConf, Evaluation eval) {
+		for (Element subConf : evalConf.getChildren()) {
+			createEvaluation(subConf, eval);
+		}
 	}
 
 	private static Evaluation createVolume(Element volume) {
@@ -182,14 +200,7 @@ public class ConfigReader {
 
 		VolumeEvaluation eval = new VolumeEvaluation(timerange, timeUnit, minRange, maxRange, CaptureEngine.getRootEngine());
 
-		configureSeverity(volume, eval);
-
-		for (Element event : volume.getChildren()) {
-			Map<String, Object> fields = new HashMap<String, Object>();
-			propertiesToMap(event, fields);
-			COMETEvent cometEvent = new COMETEvent(fields);
-			// eval.addEvent(cometEvent);
-		}
+		createChildrenEvaluations(volume, eval);
 
 		return eval;
 	}
@@ -209,30 +220,23 @@ public class ConfigReader {
 	private static Evaluation createSequence(Element sequence) {
 		SequentialEvaluation eval = new SequentialEvaluation(CaptureEngine.getRootEngine().newEngine());
 
-		configureGlobals(eval);
-
-		configureSeverity(sequence, eval);
-
-		for (Element event : sequence.getChildren()) {
-			Map<String, Object> fields = new HashMap<String, Object>();
-			propertiesToMap(event, fields);
-			EventEvaluation eventEvaluation = new EventEvaluation(new COMETEvent(fields), queryHandler, CaptureEngine.getRootEngine());
-			eventEvaluation.setDescription(event.getAttributeValue("description"));
-			eval.addNestedEvaluation(eventEvaluation);
-		}
+		createChildrenEvaluations(sequence, eval);
 
 		return eval;
 	}
 
-	private static void configureGlobals(SequentialEvaluation eval) {
-		eval.setQueryHandler(queryHandler);
+	private static Evaluation createEvent(Element event) {
+		Map<String, Object> fields = new HashMap<String, Object>();
+		propertiesToMap(event, fields);
+		EventEvaluation eventEvaluation = new EventEvaluation(new COMETEvent(fields), queryHandler, CaptureEngine.getRootEngine());
+		return eventEvaluation;
 	}
 
-	private static void configureSeverity(Element sequence, Evaluation eval) {
-		String severityValue = sequence.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
+	private static void configureSeverity(Element evalConf, Evaluation eval) {
+		String severityValue = evalConf.getAttributeValue("severity", EvaluationResultType.FAILED.getName());
 		EvaluationResultType severity = Evaluations.toEvaluationResult(severityValue);
 		if (severity == null) {
-			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, sequence.getName()));
+			throw new IllegalArgumentException(String.format("Severity [%s] declared for [%s] is invalid.", severityValue, evalConf.getName()));
 		}
 
 		eval.setConfiguredSeverity(severity);
