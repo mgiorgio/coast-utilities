@@ -9,4 +9,6 @@ public interface QueryResult {
 	public Long getLong(String key);
 
 	public Object get(String key);
+
+	boolean containsKey(String key);
 }

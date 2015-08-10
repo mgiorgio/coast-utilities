@@ -165,9 +165,6 @@ public class MongoQueryHandler implements QueryHandler {
 
 	@Override
 	public QueryResult last(EventQuery query, String correlatorKey) {
-		// Document result =
-		// collection.find(toBsonFilter(query)).sort(toBsonFilter(new
-		// QueryMember(correlatorKey, -1, QueryOperation.EQ))).first();
 		Document result = collection.find(toBsonFilter(query)).sort(Sorts.descending(correlatorKey)).first();
 		if (result != null) {
 			return new MongoQueryResult(result);

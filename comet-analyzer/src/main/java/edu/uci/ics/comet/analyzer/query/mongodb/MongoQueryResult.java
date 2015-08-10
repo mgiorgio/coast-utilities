@@ -18,6 +18,11 @@ public class MongoQueryResult implements QueryResult {
 	}
 
 	@Override
+	public boolean containsKey(String key) {
+		return document.containsKey(key);
+	}
+
+	@Override
 	public Integer getInteger(String key) {
 		return document.getInteger(key);
 	}

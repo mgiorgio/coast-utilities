@@ -36,18 +36,21 @@ public class SequentialEvaluation extends Evaluation {
 		log.info("Starting Sequence evaluation...");
 		Long correlator = getCorrelateTo();
 
+		EvaluationResult result = new EvaluationResult(EvaluationResultType.PASS);
 		for (Evaluation nestedEval : getNestedEvaluations()) {
 
 			nestedEval.setCorrelateTo(correlator);
 
-			EvaluationResult result = nestedEval.evaluate();
+			result = nestedEval.evaluate();
 
 			if (EvaluationResultType.FAILED.equals(result.getResultType())) {
 				log.info("Sequence evaluation FAILED.");
+				evaluationResult.setMessage(result.getMessage());
 				evaluationResult.setResultType(EvaluationResultType.FAILED);
 				return;
 			} else if (EvaluationResultType.ERROR.equals(result.getResultType())) {
 				log.info("Sequence evaluation ERROR.");
+				evaluationResult.setExceptionIfError(result.getExceptionIfError());
 				evaluationResult.setResultType(EvaluationResultType.ERROR);
 				return;
 			}
@@ -56,7 +59,7 @@ public class SequentialEvaluation extends Evaluation {
 		}
 
 		log.info("Sequence evaluation PASSED.");
-		evaluationResult.setResultType(EvaluationResultType.PASS);
+		evaluationResult.setResultType(result.getResultType());
 		evaluationResult.setNextCorrelation(correlator);
 	}
 

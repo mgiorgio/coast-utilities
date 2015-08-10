@@ -24,7 +24,9 @@ public class EvaluationsManager {
 			evaluation.setCorrelateTo(Long.parseLong(EvaluationContext.get(EvaluationContext.EVALUATION_START_KEY)));
 		}
 
+		System.out.println("Performing evaluation...");
 		evaluation.evaluate();
+		System.out.println("Evaluation performed!");
 		printNested(evaluation, 0);
 	}
 
@@ -43,7 +45,17 @@ public class EvaluationsManager {
 	}
 
 	private void printNested(Evaluation eval, int depth) {
-		System.out.printf("%sEvaluating %s. Result: %s. Description: %s\n", StringUtils.repeat(" ", depth * 4), eval, eval.getResult(), ObjectUtils.defaultIfNull(eval.getDescription(), "N/A"));
+		String message = "N/A";
+		if (Evaluations.isSeverity(eval.getResult().getResultType())) {
+			message = eval.getResult().getMessage();
+		}
+		// System.out.printf("%sEvaluating %s. Result: %s. Description: %s.
+		// Message: %s\n", StringUtils.repeat(" ", depth * 4), eval,
+		// eval.getResult(),
+		// ObjectUtils.defaultIfNull(eval.getDescription(), "N/A"), message);
+
+		System.out.printf("%s[%s] %s. Type: %s Message: %s\n", StringUtils.repeat(" ", depth * 4), eval.getResult(), ObjectUtils.defaultIfNull(eval.getDescription(), "N/A"), eval,
+				ObjectUtils.defaultIfNull(message, "N/A"));
 
 		List<Evaluation> nestedEvaluations = eval.getNestedEvaluations();
 

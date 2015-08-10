@@ -16,6 +16,8 @@ public class Not extends Evaluation {
 
 		switch (nestedResult.getResultType()) {
 		case PASS:
+			// Correlation is not modified.
+			evaluationResult.setNextCorrelation(getCorrelateTo());
 			evaluationResult.setResultType(EvaluationResultType.FAILED);
 			break;
 		case FAILED:

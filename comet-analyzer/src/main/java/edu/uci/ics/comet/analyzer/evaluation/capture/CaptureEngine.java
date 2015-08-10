@@ -56,7 +56,11 @@ public class CaptureEngine {
 			captureKey = action.substring(action.indexOf(KEY_VALUE_SEP) + 1);
 		}
 
-		return captureTable.put(captureKey, result.get(entry.getKey()).toString());
+		return capture(captureKey, result.get(entry.getKey()).toString());
+	}
+
+	public Object capture(String key, Object value) {
+		return captureTable.put(key, value);
 	}
 
 	public Map<String, Object> prepareQuery(Map<String, Object> fields) {
@@ -74,6 +78,10 @@ public class CaptureEngine {
 		return replacedFields;
 	}
 
+	public boolean contains(String key) {
+		return captureTable.containsKey(key);
+	}
+
 	private Object read(String readAction, Map<String, Object> fields) {
 		String readKey = DEFAULT_CAPTURE_KEY;
 
@@ -84,9 +92,13 @@ public class CaptureEngine {
 		return retrieveElement(readKey, fields);
 	}
 
+	public Object get(String key) {
+		return captureTable.get(key);
+	}
+
 	private Object retrieveElement(String key, Map<String, Object> fields) {
 		if (this.captureTable.containsKey(key)) {
-			return this.captureTable.get(key);
+			return get(key);
 		} else if (parent != null) {
 			return parent.retrieveElement(key, fields);
 		} else {

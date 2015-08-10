@@ -13,6 +13,8 @@ public class EvaluationResult {
 	private List<EvaluationResult> eventResults;
 
 	private long nextCorrelation;
+	
+	private String message;
 
 	public EvaluationResult(EvaluationResultType resultType) {
 		this.setResultType(resultType);
@@ -21,6 +23,14 @@ public class EvaluationResult {
 
 	public long getNextCorrelation() {
 		return nextCorrelation;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	public void setNextCorrelation(long nextCorrelation) {

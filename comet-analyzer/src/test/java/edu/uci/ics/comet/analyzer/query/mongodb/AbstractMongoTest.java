@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -21,16 +22,19 @@ import com.mongodb.client.MongoDatabase;
 
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.tests.MongodForTestsFactory;
-import edu.uci.ics.comet.analyzer.evaluation.UnorderedEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.WhenEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.COMETEvent;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluation;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
 import edu.uci.ics.comet.analyzer.evaluation.EventEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.ExpectedEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.MatchCaptureEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.UnorderedEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.EventQuery;
 import edu.uci.ics.comet.analyzer.query.EventQuery.QueryOperation;
@@ -57,6 +61,7 @@ public abstract class AbstractMongoTest {
 
 	protected static final String EVENT_TYPE = COMETFields.TYPE.getName();
 	protected static final String ISLAND = COMETFields.SOURCE_ISLAND.getName();
+	protected static final String ISLET = COMETFields.SOURCE_ISLET.getName();
 
 	protected static final ExpectedEvaluation FAILED_EVAL = new ExpectedEvaluation(EvaluationResultType.FAILED);
 	protected static final ExpectedEvaluation ERROR_EVAL = new ExpectedEvaluation(EvaluationResultType.ERROR);
@@ -262,6 +267,35 @@ public abstract class AbstractMongoTest {
 
 	protected Evaluation newOr() {
 		return new Or(CaptureEngine.getRootEngine()).setQueryHandler(getQueryHandler());
+	}
+
+	protected Evaluation newVolume(long timerange, TimeUnit unit, long minRange, long maxRange, COMETEvent event) {
+		VolumeEvaluation eval = new VolumeEvaluation(timerange, unit, minRange, maxRange, CaptureEngine.getRootEngine());
+
+		eval.setQueryHandler(getQueryHandler());
+		eval.setEvent(event);
+
+		return eval;
+	}
+
+	protected Evaluation newAccum() {
+		WhenEvaluation eval = new WhenEvaluation(CaptureEngine.getRootEngine());
+		eval.setQueryHandler(getQueryHandler());
+
+		return eval;
+	}
+
+	protected Evaluation newMatch(COMETEvent pattern, String captureKey) {
+		MatchCaptureEvaluation eval = new MatchCaptureEvaluation(CaptureEngine.getRootEngine());
+		eval.setQueryHandler(getQueryHandler());
+		eval.setEventPattern(pattern);
+		eval.setCaptureKey(captureKey);
+
+		return eval;
+	}
+
+	protected EventEvaluation newEventEval(COMETEvent event) {
+		return new EventEvaluation(event, getQueryHandler(), CaptureEngine.getRootEngine());
 	}
 
 	protected static void assertEval(Evaluation eval, EvaluationResultType expectedResult) {

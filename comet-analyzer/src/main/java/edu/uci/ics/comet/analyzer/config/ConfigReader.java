@@ -22,11 +22,14 @@ import edu.uci.ics.comet.analyzer.evaluation.EvaluationContext;
 import edu.uci.ics.comet.analyzer.evaluation.EvaluationResultType;
 import edu.uci.ics.comet.analyzer.evaluation.Evaluations;
 import edu.uci.ics.comet.analyzer.evaluation.EventEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.ExistsEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.MatchCaptureEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.Not;
 import edu.uci.ics.comet.analyzer.evaluation.Or;
 import edu.uci.ics.comet.analyzer.evaluation.SequentialEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.UnorderedEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.VolumeEvaluation;
+import edu.uci.ics.comet.analyzer.evaluation.WhenEvaluation;
 import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.QueryHandler;
 import edu.uci.ics.comet.analyzer.query.mongodb.MongoQueryHandler;
@@ -108,6 +111,8 @@ public class ConfigReader {
 		} else {
 			UnorderedEvaluation unordered = new UnorderedEvaluation(CaptureEngine.getRootEngine());
 
+			unordered.setDescription("Execution");
+
 			for (Element assertion : assertions.getChildren()) {
 				createEvaluation(assertion, unordered);
 			}
@@ -127,6 +132,9 @@ public class ConfigReader {
 		case "volume":
 			evaluation = createVolume(assertion);
 			break;
+		case "when":
+			evaluation = createWhen(assertion);
+			break;
 		case "or":
 			evaluation = createOr(assertion);
 			break;
@@ -135,6 +143,12 @@ public class ConfigReader {
 			break;
 		case "not":
 			evaluation = createNot(assertion);
+			break;
+		case "match":
+			evaluation = createMatch(assertion);
+			break;
+		case "exists":
+			evaluation = createExists(assertion);
 			break;
 		case "event":
 			evaluation = createEvent(assertion);
@@ -154,6 +168,45 @@ public class ConfigReader {
 		}
 
 		return evaluation;
+	}
+
+	private static Evaluation createMatch(Element config) {
+		MatchCaptureEvaluation eval = new MatchCaptureEvaluation(CaptureEngine.getRootEngine().newEngine());
+
+		if (config.getChildren().size() > 1) {
+			throw new RuntimeException(eval + " evaluation must have exactly one nested evaluation.");
+		}
+
+		eval.setCaptureKey(config.getAttributeValue("captureKey"));
+
+		for (Element eventConf : config.getChildren()) {
+			Map<String, Object> fields = new HashMap<String, Object>();
+			propertiesToMap(eventConf, fields);
+			COMETEvent cometEvent = new COMETEvent(fields);
+			eval.setEventPattern(cometEvent);
+		}
+
+		return eval;
+	}
+
+	private static Evaluation createWhen(Element assertion) {
+		WhenEvaluation eval = new WhenEvaluation(CaptureEngine.getRootEngine().newEngine());
+
+		eval.setConditions(Integer.parseInt(assertion.getAttributeValue("conditions", "1")));
+
+		createChildrenEvaluations(assertion, eval);
+
+		return eval;
+	}
+
+	private static Evaluation createExists(Element config) {
+		ExistsEvaluation eval = new ExistsEvaluation(CaptureEngine.getRootEngine().newEngine());
+		
+		eval.setMandatory(Integer.parseInt(config.getAttributeValue("mandatory", "1")));
+
+		createChildrenEvaluations(config, eval);
+
+		return eval;
 	}
 
 	private static Evaluation createNot(Element assertion) {
@@ -200,7 +253,16 @@ public class ConfigReader {
 
 		VolumeEvaluation eval = new VolumeEvaluation(timerange, timeUnit, minRange, maxRange, CaptureEngine.getRootEngine());
 
-		createChildrenEvaluations(volume, eval);
+		if (volume.getChildren().size() > 1) {
+			throw new RuntimeException(eval + " evaluation must have exactly one nested evaluation.");
+		}
+
+		for (Element eventConf : volume.getChildren()) {
+			Map<String, Object> fields = new HashMap<String, Object>();
+			propertiesToMap(eventConf, fields);
+			COMETEvent cometEvent = new COMETEvent(fields);
+			eval.setEvent(cometEvent);
+		}
 
 		return eval;
 	}
@@ -229,6 +291,13 @@ public class ConfigReader {
 		Map<String, Object> fields = new HashMap<String, Object>();
 		propertiesToMap(event, fields);
 		EventEvaluation eventEvaluation = new EventEvaluation(new COMETEvent(fields), queryHandler, CaptureEngine.getRootEngine());
+
+		String capture = event.getAttributeValue("capture");
+
+		if (capture != null) {
+			eventEvaluation.setCapture(capture);
+		}
+
 		return eventEvaluation;
 	}
 

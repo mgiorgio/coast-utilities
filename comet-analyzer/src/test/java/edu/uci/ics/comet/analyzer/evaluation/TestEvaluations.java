@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.uci.ics.comet.analyzer.evaluation.capture.CaptureEngine;
 import edu.uci.ics.comet.analyzer.query.mongodb.AbstractMongoTest;
 import edu.uci.ics.comet.generator.EventStream;
 
@@ -201,5 +200,22 @@ public class TestEvaluations extends AbstractMongoTest {
 		addEvent(eval, newEvent().put(ISLAND, "carol"));
 
 		assertEvaluationWarn(eval);
+	}
+
+	/*
+	 * Match Evaluation
+	 */
+
+	@Test
+	public void testMatchEvaluation() {
+		String randomKey = String.valueOf(System.currentTimeMillis());
+
+		EventEvaluation eventEval = newEventEval(newEvent().put(ISLAND, "alice"));
+		eventEval.setCapture(randomKey);
+		assertEvaluationPasses(eventEval);
+
+		Evaluation eval = newMatch(newEvent().put(EVENT_TYPE, "curl-new"), randomKey);
+
+		assertEvaluationPasses(eval);
 	}
 }

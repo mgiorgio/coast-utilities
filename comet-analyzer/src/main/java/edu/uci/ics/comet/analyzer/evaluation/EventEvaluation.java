@@ -26,12 +26,22 @@ public class EventEvaluation extends Evaluation {
 
 	private String description;
 
+	private String capture;
+
 	private static final Logger log = LoggerFactory.getLogger(EventEvaluation.class);
 
 	public EventEvaluation(COMETEvent event, QueryHandler queryHandler, CaptureEngine engine) {
 		super(engine);
 		this.event = event;
 		this.setQueryHandler(queryHandler);
+	}
+
+	public String getCapture() {
+		return capture;
+	}
+
+	public void setCapture(String capture) {
+		this.capture = capture;
 	}
 
 	@Override
@@ -49,18 +59,18 @@ public class EventEvaluation extends Evaluation {
 			QueryResult result = iterator.next();
 			log.debug("Result found: {}", result);
 
+			if (capture != null) {
+				getCaptureEngine().capture(capture, result);
+			}
+
 			evaluationResult.setNextCorrelation(Long.parseLong(result.getLong(CORRELATION_FIELD).toString()));
 
 			getCaptureEngine().processQueryResult(event, result);
 
 			evaluationResult.setResultType(EvaluationResultType.PASS);
-
-			// evaluationResult.addEventResult(new
-			// EvaluationResult(EvaluationResultType.PASS));
 		} else {
 			log.debug("No results were found.");
-			// evaluationResult.addEventResult(new
-			// EvaluationResult(EvaluationResultType.FAILED));
+			evaluationResult.setMessage("Event [" + query + "] could not be found.");
 			evaluationResult.setResultType(EvaluationResultType.FAILED);
 		}
 	}
