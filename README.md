@@ -1,13 +1,8 @@
-COAST Utilities
-===============
+COast Monitoring Event Tool (COMET)
+===================================
 
-**Utilities for COAST Monitoring Infrastructure.**
+This set of tools were created to support Matias Giorgio's MS Thesis at University of California, Irvine: "Accountability Through Architecture for Decentralized Systems: A Preliminary Assessment". August, 2015.
 
-More info about COAST can be found at http://isr.uci.edu/projects/coast/
-
-###Event Generator
-Generates Coast-Monitoring events and publishes them into an AMQP queue.
-
-####Features
-* Different message rate types (constant, random).
-* Predefined message producers (fixed, increasing).
+More info about COAST can be found at:
+* http://isr.uci.edu/content/capability-accounting-decentralized-systems-using-coast-architectural-style
+* http://isr.uci.edu/projects/coast/
